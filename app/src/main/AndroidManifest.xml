@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.wearables.ge.wearables_ble_receiver">
+    package="com.wearables.ge.safteynet_gas_sensor">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -20,12 +20,12 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name=".activities.main.MainTabbedActivity"
+            android:name="com.wearables.ge.safteynet_gas_sensor.activities.main.MainTabbedActivity"
             android:label="@string/app_name"/>
 
 
         <activity
-            android:name=".activities.main.AuthenticatorActivity"
+            android:name="com.wearables.ge.safteynet_gas_sensor.activities.main.AuthenticatorActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
@@ -35,7 +35,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.BluetoothService" />
+        <service android:name="com.wearables.ge.safteynet_gas_sensor.services.BluetoothService" />
 
     </application>
 

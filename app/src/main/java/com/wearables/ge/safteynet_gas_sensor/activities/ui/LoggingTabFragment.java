@@ -1,4 +1,4 @@
-package com.wearables.ge.wearables_ble_receiver.activities.ui;
+package com.wearables.ge.safteynet_gas_sensor.activities.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.wearables.ge.wearables_ble_receiver.R;
+import com.wearables.ge.safteynet_gas_sensor.R;
 
 import java.util.Arrays;
 import java.util.List;

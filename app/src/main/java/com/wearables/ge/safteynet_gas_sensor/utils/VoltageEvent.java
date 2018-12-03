@@ -1,8 +1,8 @@
-package com.wearables.ge.wearables_ble_receiver.utils;
+package com.wearables.ge.safteynet_gas_sensor.utils;
 
 import android.location.Location;
 
-import com.wearables.ge.wearables_ble_receiver.services.LocationService;
+import com.wearables.ge.safteynet_gas_sensor.services.LocationService;
 
 import java.util.Calendar;
 

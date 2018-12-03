@@ -8,7 +8,7 @@
  * under which the software has been supplied.
  */
 
-package com.wearables.ge.wearables_ble_receiver.services;
+package com.wearables.ge.safteynet_gas_sensor.services;
 
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
@@ -23,12 +23,11 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.wearables.ge.wearables_ble_receiver.utils.BLEQueue;
-import com.wearables.ge.wearables_ble_receiver.utils.QueueItem;
-import com.wearables.ge.wearables_ble_receiver.utils.GattAttributes;
+import com.wearables.ge.safteynet_gas_sensor.utils.BLEQueue;
+import com.wearables.ge.safteynet_gas_sensor.utils.QueueItem;
+import com.wearables.ge.safteynet_gas_sensor.utils.GattAttributes;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;

@@ -8,7 +8,7 @@
  * under which the software has been supplied.
  */
 
-package com.wearables.ge.wearables_ble_receiver.utils;
+package com.wearables.ge.safteynet_gas_sensor.utils;
 
 import java.util.UUID;
 

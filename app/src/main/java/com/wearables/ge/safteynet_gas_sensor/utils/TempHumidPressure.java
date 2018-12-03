@@ -1,4 +1,4 @@
-package com.wearables.ge.wearables_ble_receiver.utils;
+package com.wearables.ge.safteynet_gas_sensor.utils;
 
 import android.util.Log;
 

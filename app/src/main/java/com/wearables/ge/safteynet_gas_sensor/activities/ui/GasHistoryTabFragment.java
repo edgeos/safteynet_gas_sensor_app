@@ -1,4 +1,4 @@
-package com.wearables.ge.wearables_ble_receiver.activities.ui;
+package com.wearables.ge.safteynet_gas_sensor.activities.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,8 +17,8 @@ import com.jjoe64.graphview.LabelFormatter;
 import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
-import com.wearables.ge.wearables_ble_receiver.R;
-import com.wearables.ge.wearables_ble_receiver.utils.TempHumidPressure;
+import com.wearables.ge.safteynet_gas_sensor.R;
+import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

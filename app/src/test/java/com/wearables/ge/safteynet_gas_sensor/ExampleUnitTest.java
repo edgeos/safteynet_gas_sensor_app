@@ -1,4 +1,4 @@
-package com.wearables.ge.wearables_ble_receiver;
+package com.wearables.ge.safteynet_gas_sensor;
 
 import org.junit.Test;
 

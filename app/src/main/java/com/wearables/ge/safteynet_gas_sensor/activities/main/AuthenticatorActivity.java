@@ -8,15 +8,13 @@
  * under which the software has been supplied.
  */
 
-package com.wearables.ge.wearables_ble_receiver.activities.main;
+package com.wearables.ge.safteynet_gas_sensor.activities.main;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.widget.Button;
 
-import com.wearables.ge.wearables_ble_receiver.R;
+import com.wearables.ge.safteynet_gas_sensor.R;
 
 public class AuthenticatorActivity extends AppCompatActivity {
 

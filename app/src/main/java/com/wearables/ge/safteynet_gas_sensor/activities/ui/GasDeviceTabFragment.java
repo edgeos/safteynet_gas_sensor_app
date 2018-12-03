@@ -1,6 +1,5 @@
-package com.wearables.ge.wearables_ble_receiver.activities.ui;
+package com.wearables.ge.safteynet_gas_sensor.activities.ui;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -10,29 +9,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GridLabelRenderer;
-import com.jjoe64.graphview.LabelFormatter;
-import com.jjoe64.graphview.Viewport;
-import com.jjoe64.graphview.series.BarGraphSeries;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
-import com.wearables.ge.wearables_ble_receiver.R;
-import com.wearables.ge.wearables_ble_receiver.activities.main.MainTabbedActivity;
-import com.wearables.ge.wearables_ble_receiver.utils.GattAttributes;
-import com.wearables.ge.wearables_ble_receiver.utils.VoltageEvent;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import com.wearables.ge.safteynet_gas_sensor.R;
+import com.wearables.ge.safteynet_gas_sensor.activities.main.MainTabbedActivity;
 
 public class GasDeviceTabFragment extends Fragment {
     private static final String TAG = "Gas Device Tab Fragment";

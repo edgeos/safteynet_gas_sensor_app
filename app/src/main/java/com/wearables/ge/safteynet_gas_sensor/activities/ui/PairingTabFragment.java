@@ -1,6 +1,5 @@
-package com.wearables.ge.wearables_ble_receiver.activities.ui;
+package com.wearables.ge.safteynet_gas_sensor.activities.ui;
 
-import android.bluetooth.BluetoothGatt;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -11,9 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import com.wearables.ge.wearables_ble_receiver.R;
-import com.wearables.ge.wearables_ble_receiver.activities.main.MainTabbedActivity;
-import com.wearables.ge.wearables_ble_receiver.services.BluetoothService;
+import com.wearables.ge.safteynet_gas_sensor.R;
+import com.wearables.ge.safteynet_gas_sensor.activities.main.MainTabbedActivity;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
@@ -33,7 +31,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

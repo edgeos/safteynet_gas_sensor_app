@@ -5,7 +5,7 @@ android {
     buildToolsVersion "28.0.3"
 
     defaultConfig {
-        applicationId "com.wearables.ge.wearables_ble_receiver"
+        applicationId "com.wearables.ge.safteynet_gas_sensor"
         minSdkVersion 23
         targetSdkVersion 28
         versionCode 1

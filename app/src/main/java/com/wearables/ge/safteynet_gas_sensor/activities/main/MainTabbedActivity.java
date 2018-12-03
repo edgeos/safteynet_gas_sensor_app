@@ -1,5 +1,5 @@
 
-package com.wearables.ge.wearables_ble_receiver.activities.main;
+package com.wearables.ge.safteynet_gas_sensor.activities.main;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
@@ -27,16 +27,16 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.wearables.ge.wearables_ble_receiver.R;
-import com.wearables.ge.wearables_ble_receiver.activities.ui.GasDeviceTabFragment;
-import com.wearables.ge.wearables_ble_receiver.activities.ui.GasHistoryTabFragment;
-import com.wearables.ge.wearables_ble_receiver.activities.ui.LoggingTabFragment;
-import com.wearables.ge.wearables_ble_receiver.activities.ui.PairingTabFragment;
-import com.wearables.ge.wearables_ble_receiver.services.BluetoothService;
-import com.wearables.ge.wearables_ble_receiver.services.LocationService;
-import com.wearables.ge.wearables_ble_receiver.utils.BLEQueue;
-import com.wearables.ge.wearables_ble_receiver.utils.GattAttributes;
-import com.wearables.ge.wearables_ble_receiver.utils.TempHumidPressure;
+import com.wearables.ge.safteynet_gas_sensor.R;
+import com.wearables.ge.safteynet_gas_sensor.activities.ui.GasDeviceTabFragment;
+import com.wearables.ge.safteynet_gas_sensor.activities.ui.GasHistoryTabFragment;
+import com.wearables.ge.safteynet_gas_sensor.activities.ui.LoggingTabFragment;
+import com.wearables.ge.safteynet_gas_sensor.activities.ui.PairingTabFragment;
+import com.wearables.ge.safteynet_gas_sensor.services.BluetoothService;
+import com.wearables.ge.safteynet_gas_sensor.services.LocationService;
+import com.wearables.ge.safteynet_gas_sensor.utils.BLEQueue;
+import com.wearables.ge.safteynet_gas_sensor.utils.GattAttributes;
+import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
 
 import java.util.UUID;
 
