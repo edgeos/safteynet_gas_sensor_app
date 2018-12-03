@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name"> Gas Sense </string>
+    <string name="edit_message">Enter a message</string>
+    <string name="scan_button">Scan Again</string>
+    <string name="connect_button">Connect</string>
+    <string name="menu_title">Options</string>
+    <string name="update_rate">Set Update Rate</string>
+    <string name="device_id">View Device ID</string>
+    <string name="rename">Rename</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="alarm_threshold_button">Set alarm threshold</string>
+    <string name="alert_threshold_dialog_message">Enter an alert threshold</string>
+    <string name="dialog_accept_button_message">Ok</string>
+    <string name="dialog_cancel_button_message">Cancel</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_authenticator">AuthenticatorActivity</string>
+    <string name="connected_device_message">Connected to: %1$s</string>
+    <string name="voltage_sensor_status">Status: %1$s</string>
+    <string name="battery_level">Battery Level: %1$d%%</string>
+    <string name="temperature">Temperature: %1$s °C</string>
+    <string name="humidity">Humidity: %1$s%%</string>
+    <string name="pressure">Pressure: %1$s mb</string>
+    <string name="active_gas_sensor">Active Gas Sensor: %1$s</string>
+    <string name="gas_sensor_data">Gas Sensor Data: %1$s</string>
+    <string name="alarm_threshold">Alarm threshold: %1$d</string>
+    <string name="update_rate_value">Update Rate: %1$d</string>
+    <string name="frequency_value">Frequency: %1$d</string>
+    <string name="num_sensors_value">Number of Sensors: %1$d</string>
+    <string name="auto_sample_off_message">Auto Sampling: OFF</string>
+    <string name="normal_mode_menu_item">Normal mode</string>
+    <string name="dev_mode_menu_item">Dev mode</string>
+    <string name="gas_sensor_button">Gas Sensor</string>
+    <string name="temp_humidity_sensor_button">Temp/Humidity Sensor</string>
+    <string name="title_activity_temp_humidity_sensor_graph">TempHumiditySensorGraph</string>
+    <string name="show_device_id">Device ID: %1$s</string>
+    <string name="rename_device_modal_message">Rename Bluetooth Device</string>
+    <string name="temperature_graph_title">Temperature</string>
+    <string name="humidity_graph_title">Humidity</string>
+    <string name="temperature_graph_x_axis_label">Time</string>
+    <string name="temperature_graph_y_axis_label">Temp</string>
+    <string name="humidity_graph_x_axis_label">Time</string>
+    <string name="humidity_graph_y_axis_label">Humidity</string>
+    <string name="pressure_graph_title">Pressure</string>
+    <string name="pressure_graph_x_axis_label">Time</string>
+    <string name="pressure_graph_y_axis_label">Pressure</string>
+
+    <string name="gas_sensor_graph_1_title">Z\'</string>
+    <string name="gas_sensor_graph_2_title">Z\'\'</string>
+    <string name="gas_sensor_graph_1_x_axis_label">Time</string>
+    <string name="gas_sensor_graph_1_y_axis_label">Magnitude</string>
+    <string name="gas_sensor_graph_2_x_axis_label">Time</string>
+    <string name="gas_sensor_graph_2_y_axis_label">Magnitude</string>
+
+    <string name="enable_sensors_dropdown">Enable Sensor</string>
+    <string name="gas_sensor_dropdown_message">Active Sensor: </string>
+    <string-array name="gas_sensor_options">
+        <item>Gas Sensor 1</item>
+        <item>Gas Sensor 2</item>
+        <item>Gas Sensor 3</item>
+        <item>Gas Sensor 4</item>
+    </string-array>
+
+</resources>
