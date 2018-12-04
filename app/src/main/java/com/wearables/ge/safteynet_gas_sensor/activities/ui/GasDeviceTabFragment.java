@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -16,6 +17,9 @@ import android.widget.Toast;
 
 import com.wearables.ge.safteynet_gas_sensor.R;
 import com.wearables.ge.safteynet_gas_sensor.activities.main.MainTabbedActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GasDeviceTabFragment extends Fragment {
     private static final String TAG = "Gas Device Tab Fragment";
@@ -32,11 +36,87 @@ public class GasDeviceTabFragment extends Fragment {
 
     public int alarmLevel;
 
+    List<String> sensorList = new ArrayList<>();
+    ArrayAdapter<String> spinnerArrayAdapter = null;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_tab_gas_device, container, false);
-        switchToGasSensorMode();
+
+        SeekBar frequencyBar = rootView.findViewById(R.id.frequency_bar);
+
+        TextView frequencyView = rootView.findViewById(R.id.frequency_bar_text);
+
+        frequencyBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // updated continuously as the user slides the thumb
+                frequencyView.setText(getString(R.string.frequency_value, progress));
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // called when the user first touches the SeekBar
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // called after the user finishes moving the SeekBar
+                frequencyView.setText(getString(R.string.frequency_value, seekBar.getProgress()));
+
+            }
+        });
+
+        SeekBar numSensorsBar = rootView.findViewById(R.id.num_sensors_bar);
+
+        TextView numSensorsView = rootView.findViewById(R.id.num_sensors_bar_text);
+        numSensorsView.setText(getString(R.string.num_sensors_value, numSensorsBar.getProgress()));
+
+        numSensorsBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // updated continuously as the user slides the thumb
+                numSensorsView.setText(getString(R.string.num_sensors_value, progress));
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // called when the user first touches the SeekBar
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // called after the user finishes moving the SeekBar
+                numSensorsView.setText(getString(R.string.num_sensors_value, seekBar.getProgress()));
+                int numSensors = seekBar.getProgress();
+                if(seekBar.getProgress() == 0){
+                    numSensors = 1;
+                    numSensorsBar.setProgress(1);
+                    numSensorsView.setText(getString(R.string.num_sensors_value, 1));
+                }
+                if(numSensors > sensorList.size()){
+                    for(int i = sensorList.size() + 1; i < numSensors + 1; i++){
+                        String item = "Gas Sensor " + i;
+                        sensorList.add(item);
+                    }
+                    spinnerArrayAdapter.notifyDataSetChanged();
+                } else if(numSensors < sensorList.size()){
+                    for(int i = sensorList.size() - 1; i > numSensors - 1; i--){
+                        sensorList.remove(i);
+                    }
+                    spinnerArrayAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+        Spinner gasSensorDropdown = rootView.findViewById(R.id.gas_sensor_dropdown);
+        int numSensors = numSensorsBar.getProgress();
+        for(int i = 1; i < numSensors + 1; i++){
+            String itemName = "Gas Sensor " + i;
+            sensorList.add(itemName);
+        }
+
+        spinnerArrayAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.spinner_item, sensorList);
+        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+        gasSensorDropdown.setAdapter(spinnerArrayAdapter);
+        gasSensorDropdown.setOnItemSelectedListener(new GasDeviceTabFragment.CustomOnItemSelectedListener());
 
         int sampleRateStepSize = 25; // from 0 - 100 with increments of 25 points each
         SeekBar sampleRateBar = rootView.findViewById(R.id.sampleRateBar);
@@ -161,74 +241,10 @@ public class GasDeviceTabFragment extends Fragment {
         }
     }
 
-    public Boolean showGasSensorMode = false;
-    public void switchToGasSensorMode(){
-        showGasSensorMode = true;
-        if(rootView == null){
-            return;
-        }
-
-        SeekBar frequencyBar = rootView.findViewById(R.id.frequency_bar);
-
-        TextView frequencyView = rootView.findViewById(R.id.frequency_bar_text);
-
-        if(frequencyBar == null || frequencyView == null){
-            return;
-        } else {
-            frequencyView.setText(getString(R.string.frequency_value, frequencyBar.getProgress()));
-        }
-
-        frequencyBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // updated continuously as the user slides the thumb
-                frequencyView.setText(getString(R.string.frequency_value, progress));
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // called when the user first touches the SeekBar
-            }
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // called after the user finishes moving the SeekBar
-                frequencyView.setText(getString(R.string.frequency_value, seekBar.getProgress()));
-
-            }
-        });
-
-        Spinner gasSensorDropdown = rootView.findViewById(R.id.gas_sensor_dropdown);
-        gasSensorDropdown.setOnItemSelectedListener(new GasDeviceTabFragment.CustomOnItemSelectedListener());
-
-        SeekBar numSensorsBar = rootView.findViewById(R.id.num_sensors_bar);
-
-        TextView numSensorsView = rootView.findViewById(R.id.num_sensors_bar_text);
-        numSensorsView.setText(getString(R.string.num_sensors_value, numSensorsBar.getProgress()));
-
-        numSensorsBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // updated continuously as the user slides the thumb
-                numSensorsView.setText(getString(R.string.num_sensors_value, progress));
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // called when the user first touches the SeekBar
-            }
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // called after the user finishes moving the SeekBar
-                numSensorsView.setText(getString(R.string.num_sensors_value, seekBar.getProgress()));
-
-            }
-        });
-    }
-
     public class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
-            Toast.makeText(parent.getContext(),
-                    "OnItemSelectedListener : " + parent.getItemAtPosition(pos).toString(),
-                    Toast.LENGTH_SHORT).show();
+            //Toast.makeText(parent.getContext(), "OnItemSelectedListener : " + parent.getItemAtPosition(pos).toString(), Toast.LENGTH_SHORT).show();
             Log.d(TAG, "OnItemSelectedListener : " + parent.getItemAtPosition(pos).toString());
         }
 
