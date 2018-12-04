@@ -37,6 +37,7 @@ import com.wearables.ge.safteynet_gas_sensor.services.LocationService;
 import com.wearables.ge.safteynet_gas_sensor.utils.BLEQueue;
 import com.wearables.ge.safteynet_gas_sensor.utils.GattAttributes;
 import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
+import com.wearables.ge.safteynet_gas_sensor.utils.VoltageAlarmStateChar;
 
 import java.util.UUID;
 
@@ -126,10 +127,6 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         //This is because we don't need the location service to send updates to the UI.
         //We only need to grab the latest coordinates from the location service.
         LocationService.startLocationService(this);
-
-        /*mDeviceTabFragment.switchToGasSensorMode();
-        mHistoryTabFragment.switchToGasSensorMode();
-        mEventsTabFragment.switchToGasSensorMode();*/
 
     }
 
@@ -408,6 +405,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                 }
                 Log.d(TAG, "Battery level: " + extraIntData + "%");
             } else if(extraUuid.equals(GattAttributes.VOLTAGE_ALARM_STATE_CHARACTERISTIC_UUID)){
+                VoltageAlarmStateChar voltageAlarmState = new VoltageAlarmStateChar(value);
                 Log.d(TAG, "VOLTAGE_ALARM_STATE value: " + value);
             } else if(extraUuid.equals(GattAttributes.VOLTAGE_ALARM_CONFIG_CHARACTERISTIC_UUID)){
                 Log.d(TAG, "VOLTAGE_ALARM_CONFIG value: " + value);
