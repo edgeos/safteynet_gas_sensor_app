@@ -1,8 +1,12 @@
 package com.wearables.ge.safteynet_gas_sensor.activities.ui;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -63,13 +67,6 @@ public class LoggingTabFragment extends Fragment {
         return rootView;
     }
 
-    /*List<String> lines = Arrays.asList("Test Data Line 1",
-            "Test Data Line 2",
-            "Test Data Line 3",
-            "Test Data Line 4",
-            "Test Data Line 5",
-            "Test Data Line 6",
-            "Test Data Line 7");*/
     List<String> lines = new ArrayList<>();
 
     public void showFileText(){
@@ -85,7 +82,7 @@ public class LoggingTabFragment extends Fragment {
 
     public void addItem(String item){
         lines.add(item);
-        if(rootView != null){
+        if(rootView != null && !viewingOldFile){
             LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
             TextView textView = new TextView(rootView.getContext());
             textView.setText(item);
@@ -95,6 +92,12 @@ public class LoggingTabFragment extends Fragment {
     }
 
     public void saveFile(){
+        if(ContextCompat.checkSelfPermission(rootView.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    1);
+            return;
+        }
         if(lines.isEmpty()){
             AlertDialog.Builder alert = new AlertDialog.Builder(new ContextThemeWrapper(rootView.getContext(), R.style.AlertDialogCustom));
             alert.setTitle("Current Log is empty");
@@ -127,9 +130,22 @@ public class LoggingTabFragment extends Fragment {
         }
     }
 
+    boolean viewingOldFile = false;
     public void findLocalFiles(){
+        if(ContextCompat.checkSelfPermission(rootView.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    1);
+            return;
+        }
         File[] files = path.listFiles();
         List<String> optionsList = new ArrayList<>();
+        if(files == null){
+            AlertDialog.Builder alert = new AlertDialog.Builder(new ContextThemeWrapper(rootView.getContext(), R.style.AlertDialogCustom));
+            alert.setTitle("No log files found in " + path.toString());
+            alert.show();
+            return;
+        }
         for(File file : files){
             Log.d(TAG, "File: " + file.getName());
             optionsList.add(file.getName());
@@ -143,16 +159,15 @@ public class LoggingTabFragment extends Fragment {
         alert.setItems(optionsArray, (dialog, which) -> {
             Log.d(TAG, "Chose option #" + which + " filename: " + optionsList.get(which));
             File selectedFile = new File(path, optionsList.get(which));
+            viewingOldFile = true;
             try {
                 FileInputStream is = new FileInputStream(selectedFile);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
                 String line = reader.readLine();
                 LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
                 logEventsList.removeAllViews();
-                lines = new ArrayList<>();
                 while(line != null){
                     Log.d(TAG, "Line read: " + line);
-                    lines.add(line);
                     TextView textView = new TextView(rootView.getContext());
                     textView.setText(line);
                     textView.setGravity(Gravity.START);
@@ -167,6 +182,7 @@ public class LoggingTabFragment extends Fragment {
     }
 
     public void clearLog(){
+        viewingOldFile = false;
         LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
         logEventsList.removeAllViews();
         lines = new ArrayList<>();

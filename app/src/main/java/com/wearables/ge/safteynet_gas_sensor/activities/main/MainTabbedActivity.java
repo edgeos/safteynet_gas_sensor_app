@@ -284,6 +284,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                         Log.d(TAG, "ACTION_GATT_SERVICES_DISCOVERED broadcast received");
                         //good indication that the device is successfully connected
                         Toast.makeText(mPairingTabFragment.getContext(), "Device Connected", Toast.LENGTH_LONG).show();
+                        mGasDeviceTabFragment.setConnectedMessage(true);
                         mService.setNotifyOnCharacteristics();
                         break;
                     case BluetoothService.ACTION_DATA_AVAILABLE:

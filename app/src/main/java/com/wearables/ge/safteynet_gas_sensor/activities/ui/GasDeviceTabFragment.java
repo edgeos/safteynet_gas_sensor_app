@@ -39,6 +39,8 @@ public class GasDeviceTabFragment extends Fragment {
     List<String> sensorList = new ArrayList<>();
     ArrayAdapter<String> spinnerArrayAdapter = null;
 
+    Boolean isConnected = false;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -174,12 +176,25 @@ public class GasDeviceTabFragment extends Fragment {
         deviceName = rootView.findViewById(R.id.deviceNameView);
         deviceName.setText(MainTabbedActivity.connectedDeviceName);
 
+        setConnectedMessage(isConnected);
+
         return rootView;
     }
 
     public void displayDeviceName(String name){
         deviceName = rootView.findViewById(R.id.deviceNameView);
         deviceName.setText(name);
+    }
+
+    public void setConnectedMessage(boolean status){
+        if(rootView != null){
+            TextView connectedStatusView = rootView.findViewById(R.id.gas_sensor_status);
+            if(connectedStatusView != null){
+                String message = status ? "Connected" : "Disconnected";
+                connectedStatusView.setText(getString(R.string.gas_sensor_status, message));
+            }
+        }
+        this.isConnected = status;
     }
 
     public void updateBatteryLevel(int batteryLevel){

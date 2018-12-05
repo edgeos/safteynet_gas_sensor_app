@@ -15,7 +15,7 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_authenticator">AuthenticatorActivity</string>
     <string name="connected_device_message">Connected to: %1$s</string>
-    <string name="voltage_sensor_status">Status: %1$s</string>
+    <string name="gas_sensor_status">Status: %1$s</string>
     <string name="battery_level">Battery Level: %1$d%%</string>
     <string name="temperature">Temperature: %1$s °C</string>
     <string name="humidity">Humidity: %1$s%%</string>
