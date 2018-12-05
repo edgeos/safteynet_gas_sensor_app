@@ -101,4 +101,12 @@ public class GasSensorData {
     public void setZ_imaginary(float z_imaginary) {
         this.z_imaginary = z_imaginary;
     }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
 }

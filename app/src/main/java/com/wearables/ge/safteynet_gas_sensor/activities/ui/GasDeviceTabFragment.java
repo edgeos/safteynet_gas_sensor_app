@@ -189,21 +189,21 @@ public class GasDeviceTabFragment extends Fragment {
         }
     }
 
-    public void updateTemperature(int temp){
+    public void updateTemperature(double temp){
         TextView voltageSensorStatusView = rootView.findViewById(R.id.temperature);
         if(voltageSensorStatusView != null){
             voltageSensorStatusView.setText(getString(R.string.temperature, String.valueOf(temp)));
         }
     }
 
-    public void updateHumidity(int humidity){
+    public void updateHumidity(double humidity){
         TextView voltageSensorStatusView = rootView.findViewById(R.id.humidity);
         if(voltageSensorStatusView != null){
             voltageSensorStatusView.setText(getString(R.string.humidity, String.valueOf(humidity)));
         }
     }
 
-    public void updatePressure(int pressure){
+    public void updatePressure(double pressure){
         TextView voltageSensorStatusView = rootView.findViewById(R.id.pressure);
         if(voltageSensorStatusView != null){
             voltageSensorStatusView.setText(getString(R.string.pressure, String.valueOf(pressure)));

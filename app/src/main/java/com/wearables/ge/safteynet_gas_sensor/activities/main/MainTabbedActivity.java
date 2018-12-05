@@ -40,6 +40,7 @@ import com.wearables.ge.safteynet_gas_sensor.utils.GattAttributes;
 import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
 import com.wearables.ge.safteynet_gas_sensor.utils.VoltageAlarmStateChar;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -399,6 +400,16 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                 Log.d(TAG, "Battery level: " + extraIntData + "%");
             } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_DATA_CHARACTERISTIC_UUID)){
                 GasSensorData data = new GasSensorData(value);
+                DateFormat dfrmt = new SimpleDateFormat("HH:mm:ss:SSS");
+                Date date = new Date(data.getTime());
+                String dateString = dfrmt.format(date);
+                String message = dateString + " Gas PPM: " + data.getGas_ppm()
+                        + " Gas sensor connected: " + data.getGasSensor()
+                        + " Frequency: " + data.getFrequency()
+                        + " Z': " + data.getZ_real()
+                        + " Z\": " + data.getZ_imaginary();
+                mLoggingTabFragment.addItem(message);
+                mGasHistoryTabFragment.updateGasGraphs(data);
                 Log.d(TAG, "GAS_SENSOR_DATA value: " + value);
             } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_CONFIG_DATA_CHARACTERISTIC_UUID)){
                 Log.d(TAG, "GAS_SENSOR_CONFIG_DATA value: " + value);
@@ -409,9 +420,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                     mGasDeviceTabFragment.updateTemperature(tempHumidPressure.getTemp());
                     mGasDeviceTabFragment.updatePressure(tempHumidPressure.getPres());
                 }
-                if(mGasHistoryTabFragment.isVisible()){
-                    mGasHistoryTabFragment.updateTempHumidityPressureGraph(tempHumidPressure);
-                }
+                mGasHistoryTabFragment.updateTempHumidityPressureGraph(tempHumidPressure);
                 Log.d(TAG, "TEMP_HUMIDITY_PRESSURE_DATA value: " + value);
             } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_1_DATA_CHARACTERISTIC_UUID)){
                 Log.d(TAG, "GAS_SENSOR_1_DATA value: " + value);

@@ -51,6 +51,10 @@
     <string name="gas_sensor_graph_2_x_axis_label">Time</string>
     <string name="gas_sensor_graph_2_y_axis_label">Magnitude</string>
 
+    <string name="gas_ppm_graph_title">Gas PPM</string>
+    <string name="gas_ppm_graph_x_axis_label">Time</string>
+    <string name="gas_ppm_graph_y_axis_label">Magnitude</string>
+
     <string name="enable_sensors_dropdown">Enable Sensor</string>
     <string name="gas_sensor_dropdown_message">Active Sensor: </string>
     <string-array name="gas_sensor_options">

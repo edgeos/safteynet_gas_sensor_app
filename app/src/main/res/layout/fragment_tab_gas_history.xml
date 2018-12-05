@@ -86,6 +86,23 @@
                 android:layout_marginBottom="8dp"
                 />
 
+            <TextView
+                android:id="@+id/gas_sensor_name_a3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textStyle="bold"
+                android:text="@string/gas_ppm_graph_title"
+                />
+
+            <com.jjoe64.graphview.GraphView
+                android:id="@+id/gas_sensor_graph_3"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                />
+
         </LinearLayout>
 
         <LinearLayout

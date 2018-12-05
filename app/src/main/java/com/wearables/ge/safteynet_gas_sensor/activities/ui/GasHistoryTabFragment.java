@@ -18,6 +18,7 @@ import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.wearables.ge.safteynet_gas_sensor.R;
+import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
 import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
 
 import java.text.SimpleDateFormat;
@@ -37,6 +38,7 @@ public class GasHistoryTabFragment extends Fragment {
 
     GraphView gasGraph1;
     GraphView gasGraph2;
+    GraphView gasPpmGraph;
 
     View rootView;
 
@@ -46,6 +48,7 @@ public class GasHistoryTabFragment extends Fragment {
 
     LineGraphSeries<DataPoint>  gasGraph1Series = new LineGraphSeries<>();
     LineGraphSeries<DataPoint>  gasGraph2Series = new LineGraphSeries<>();
+    LineGraphSeries<DataPoint>  gasPpmSeries = new LineGraphSeries<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -156,6 +159,16 @@ public class GasHistoryTabFragment extends Fragment {
         gas2GridLabel.setHorizontalAxisTitle(getString(R.string.gas_sensor_graph_2_x_axis_label));
         gas2GridLabel.setVerticalAxisTitle(getString(R.string.gas_sensor_graph_2_y_axis_label));
         gasGraph2.getGridLabelRenderer().setLabelFormatter(simpleTimeLabel);
+
+        gasPpmGraph = rootView.findViewById(R.id.gas_sensor_graph_3);
+        Viewport gasPpmGraphViewport = gasPpmGraph.getViewport();
+        gasPpmGraphViewport.setYAxisBoundsManual(true);
+        gasPpmGraphViewport.setXAxisBoundsManual(true);
+        gasPpmGraph.addSeries(gasPpmSeries);
+        GridLabelRenderer gasPpmGridLabel = gasPpmGraph.getGridLabelRenderer();
+        gasPpmGridLabel.setHorizontalAxisTitle(getString(R.string.gas_ppm_graph_x_axis_label));
+        gasPpmGridLabel.setVerticalAxisTitle(getString(R.string.gas_ppm_graph_y_axis_label));
+        gasPpmGraph.getGridLabelRenderer().setLabelFormatter(simpleTimeLabel);
     }
 
     public void initializeTempHumidPressureGraphs(){
@@ -208,7 +221,7 @@ public class GasHistoryTabFragment extends Fragment {
         humiditySeries.appendData(new DataPoint(tempHumidPressure.getDate(), tempHumidPressure.getHumid()), false, 300);
         pressureSeries.appendData(new DataPoint(tempHumidPressure.getDate(), tempHumidPressure.getPres()), false, 300);
 
-        if(tempGraph != null && humidityGraph != null){
+        if(tempGraph != null && humidityGraph != null && pressureGraph != null){
             tempGraph.getViewport().setMinX(temperatureSeries.getLowestValueX());
             tempGraph.getViewport().setMaxX(temperatureSeries.getHighestValueX());
             tempGraph.getViewport().setMinY(temperatureSeries.getLowestValueY());
@@ -223,6 +236,29 @@ public class GasHistoryTabFragment extends Fragment {
             pressureGraph.getViewport().setMaxX(pressureSeries.getHighestValueX());
             pressureGraph.getViewport().setMinY(pressureSeries.getLowestValueY());
             pressureGraph.getViewport().setMaxY(pressureSeries.getHighestValueY());
+        }
+    }
+
+    public void updateGasGraphs(GasSensorData data){
+        gasGraph1Series.appendData(new DataPoint(data.getTime(), data.getZ_real()),  false, 60);
+        gasGraph2Series.appendData(new DataPoint(data.getTime(), data.getZ_imaginary()),  false, 60);
+        gasPpmSeries.appendData(new DataPoint(data.getTime(), data.getGas_ppm()),  false, 60);
+
+        if(gasGraph1 != null && gasGraph2 != null && gasPpmGraph != null){
+            gasGraph1.getViewport().setMinX(gasGraph1Series.getLowestValueX());
+            gasGraph1.getViewport().setMaxX(gasGraph1Series.getHighestValueX());
+            gasGraph1.getViewport().setMinY(gasGraph1Series.getLowestValueY());
+            gasGraph1.getViewport().setMaxY(gasGraph1Series.getHighestValueY());
+
+            gasGraph2.getViewport().setMinX(gasGraph2Series.getLowestValueX());
+            gasGraph2.getViewport().setMaxX(gasGraph2Series.getHighestValueX());
+            gasGraph2.getViewport().setMinY(gasGraph2Series.getLowestValueY());
+            gasGraph2.getViewport().setMaxY(gasGraph2Series.getHighestValueY());
+
+            gasPpmGraph.getViewport().setMinX(gasPpmSeries.getLowestValueX());
+            gasPpmGraph.getViewport().setMaxX(gasPpmSeries.getHighestValueX());
+            gasPpmGraph.getViewport().setMinY(gasPpmSeries.getLowestValueY());
+            gasPpmGraph.getViewport().setMaxY(gasPpmSeries.getHighestValueY());
         }
     }
 }
