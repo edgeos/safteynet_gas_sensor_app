@@ -411,6 +411,14 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                         + " Z\": " + data.getZ_imaginary();
                 mLoggingTabFragment.addItem(message);
                 mGasHistoryTabFragment.updateGasGraphs(data);
+                if(mGasDeviceTabFragment.activeSensor != data.getGasSensor()){
+                    mGasDeviceTabFragment.updateActiveGasSensor(data.getGasSensor());
+                }
+                if(mGasDeviceTabFragment.isVisible()){
+                    mGasDeviceTabFragment.updateZreal(String.valueOf(data.getZ_real()));
+                    mGasDeviceTabFragment.updateZimaginary(String.valueOf(data.getZ_imaginary()));
+                    mGasDeviceTabFragment.updateGasPpm(String.valueOf(data.getGas_ppm()));
+                }
                 Log.d(TAG, "GAS_SENSOR_DATA value: " + value);
             } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_CONFIG_DATA_CHARACTERISTIC_UUID)){
                 Log.d(TAG, "GAS_SENSOR_CONFIG_DATA value: " + value);

@@ -138,12 +138,30 @@
                     android:textSize="18sp" />
 
                 <TextView
-                    android:id="@id/gas_sensor_data"
+                    android:id="@id/z_real"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="@font/geinspirasansfamily"
-                    android:text="Gas Sensor Data: undefined"
+                    android:text="Z real: undefined"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@id/z_imaginary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/geinspirasansfamily"
+                    android:text="Z imaginary: undefined"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@id/gas_ppm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/geinspirasansfamily"
+                    android:text="Gas PPM: undefined"
                     android:textSize="18sp" />
             </LinearLayout>
 

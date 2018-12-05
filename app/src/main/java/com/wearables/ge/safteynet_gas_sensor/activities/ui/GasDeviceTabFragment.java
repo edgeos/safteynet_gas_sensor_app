@@ -41,6 +41,8 @@ public class GasDeviceTabFragment extends Fragment {
 
     Boolean isConnected = false;
 
+    public int activeSensor;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -225,17 +227,34 @@ public class GasDeviceTabFragment extends Fragment {
         }
     }
 
-    public void updateActiveGasSensor(String gasSensor){
+    public void updateActiveGasSensor(int sensor){
+        this.activeSensor = sensor;
+        Spinner gasSensorDropdown = rootView.findViewById(R.id.gas_sensor_dropdown);
+        gasSensorDropdown.setSelection(sensor - 1);
         TextView activeGasSensorView = rootView.findViewById(R.id.active_gas_sensor);
         if(activeGasSensorView != null){
-            activeGasSensorView.setText(getString(R.string.active_gas_sensor, gasSensor));
+            activeGasSensorView.setText(getString(R.string.active_gas_sensor, String.valueOf(sensor)));
         }
     }
 
-    public void updateGasSensorData(String data){
-        TextView gasSensorDataView = rootView.findViewById(R.id.gas_sensor_data);
-        if(gasSensorDataView != null){
-            gasSensorDataView.setText(getString(R.string.gas_sensor_data, data));
+    public void updateZreal(String data){
+        TextView zRealView = rootView.findViewById(R.id.z_real);
+        if(zRealView != null){
+            zRealView.setText(getString(R.string.z_real, data));
+        }
+    }
+
+    public void updateZimaginary(String data){
+        TextView zImaginaryView = rootView.findViewById(R.id.z_imaginary);
+        if(zImaginaryView != null){
+            zImaginaryView.setText(getString(R.string.z_imaginary, data));
+        }
+    }
+
+    public void updateGasPpm(String data){
+        TextView gasPpmView = rootView.findViewById(R.id.gas_ppm);
+        if(gasPpmView != null){
+            gasPpmView.setText(getString(R.string.gas_ppm, data));
         }
     }
 

@@ -31,7 +31,9 @@
     <item type="id" name="frequency_bar" />
     <item type="id" name="frequency_bar_text" />
     <item type="id" name="active_gas_sensor" />
-    <item type="id" name="gas_sensor_data" />
+    <item type="id" name="z_real" />
+    <item type="id" name="z_imaginary" />
+    <item type="id" name="gas_ppm" />
     <item type="id" name="num_sensors_bar" />
     <item type="id" name="num_sensors_bar_text" />
 
