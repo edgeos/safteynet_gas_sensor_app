@@ -25,7 +25,7 @@
     <string name="alarm_threshold">Alarm threshold: %1$d</string>
     <string name="update_rate_value">Update Rate: %1$d</string>
     <string name="frequency_value">Frequency: %1$d</string>
-    <string name="num_sensors_value">Number of Sensors: %1$d</string>
+    <string name="num_samples_value">Number of Samples: %1$d</string>
     <string name="auto_sample_off_message">Auto Sampling: OFF</string>
     <string name="normal_mode_menu_item">Normal mode</string>
     <string name="dev_mode_menu_item">Dev mode</string>

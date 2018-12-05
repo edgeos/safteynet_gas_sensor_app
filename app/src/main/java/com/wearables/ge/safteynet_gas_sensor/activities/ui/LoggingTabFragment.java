@@ -63,13 +63,14 @@ public class LoggingTabFragment extends Fragment {
         return rootView;
     }
 
-    List<String> lines = Arrays.asList("Test Data Line 1",
+    /*List<String> lines = Arrays.asList("Test Data Line 1",
             "Test Data Line 2",
             "Test Data Line 3",
             "Test Data Line 4",
             "Test Data Line 5",
             "Test Data Line 6",
-            "Test Data Line 7");
+            "Test Data Line 7");*/
+    List<String> lines = new ArrayList<>();
 
     public void showFileText(){
         LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
@@ -77,6 +78,17 @@ public class LoggingTabFragment extends Fragment {
         for(String line : lines){
             TextView textView = new TextView(rootView.getContext());
             textView.setText(line);
+            textView.setGravity(Gravity.START);
+            logEventsList.addView(textView);
+        }
+    }
+
+    public void addItem(String item){
+        lines.add(item);
+        if(rootView != null){
+            LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
+            TextView textView = new TextView(rootView.getContext());
+            textView.setText(item);
             textView.setGravity(Gravity.START);
             logEventsList.addView(textView);
         }

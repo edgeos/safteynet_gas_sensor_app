@@ -47,6 +47,7 @@ public class GasDeviceTabFragment extends Fragment {
         SeekBar frequencyBar = rootView.findViewById(R.id.frequency_bar);
 
         TextView frequencyView = rootView.findViewById(R.id.frequency_bar_text);
+        frequencyView.setText(getString(R.string.frequency_value, frequencyBar.getProgress()));
 
         frequencyBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -66,16 +67,16 @@ public class GasDeviceTabFragment extends Fragment {
             }
         });
 
-        SeekBar numSensorsBar = rootView.findViewById(R.id.num_sensors_bar);
+        SeekBar numSamplesBar = rootView.findViewById(R.id.num_sensors_bar);
 
-        TextView numSensorsView = rootView.findViewById(R.id.num_sensors_bar_text);
-        numSensorsView.setText(getString(R.string.num_sensors_value, numSensorsBar.getProgress()));
+        TextView numSamplesView = rootView.findViewById(R.id.num_sensors_bar_text);
+        numSamplesView.setText(getString(R.string.num_samples_value, numSamplesBar.getProgress()));
 
-        numSensorsBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        numSamplesBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 // updated continuously as the user slides the thumb
-                numSensorsView.setText(getString(R.string.num_sensors_value, progress));
+                numSamplesView.setText(getString(R.string.num_samples_value, progress));
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -84,30 +85,12 @@ public class GasDeviceTabFragment extends Fragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // called after the user finishes moving the SeekBar
-                numSensorsView.setText(getString(R.string.num_sensors_value, seekBar.getProgress()));
-                int numSensors = seekBar.getProgress();
-                if(seekBar.getProgress() == 0){
-                    numSensors = 1;
-                    numSensorsBar.setProgress(1);
-                    numSensorsView.setText(getString(R.string.num_sensors_value, 1));
-                }
-                if(numSensors > sensorList.size()){
-                    for(int i = sensorList.size() + 1; i < numSensors + 1; i++){
-                        String item = "Gas Sensor " + i;
-                        sensorList.add(item);
-                    }
-                    spinnerArrayAdapter.notifyDataSetChanged();
-                } else if(numSensors < sensorList.size()){
-                    for(int i = sensorList.size() - 1; i > numSensors - 1; i--){
-                        sensorList.remove(i);
-                    }
-                    spinnerArrayAdapter.notifyDataSetChanged();
-                }
+                numSamplesView.setText(getString(R.string.num_samples_value, seekBar.getProgress()));
             }
         });
 
         Spinner gasSensorDropdown = rootView.findViewById(R.id.gas_sensor_dropdown);
-        int numSensors = numSensorsBar.getProgress();
+        int numSensors = 4;
         for(int i = 1; i < numSensors + 1; i++){
             String itemName = "Gas Sensor " + i;
             sensorList.add(itemName);

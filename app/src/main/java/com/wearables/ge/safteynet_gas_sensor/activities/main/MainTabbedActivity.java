@@ -35,10 +35,15 @@ import com.wearables.ge.safteynet_gas_sensor.activities.ui.PairingTabFragment;
 import com.wearables.ge.safteynet_gas_sensor.services.BluetoothService;
 import com.wearables.ge.safteynet_gas_sensor.services.LocationService;
 import com.wearables.ge.safteynet_gas_sensor.utils.BLEQueue;
+import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
 import com.wearables.ge.safteynet_gas_sensor.utils.GattAttributes;
 import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
 import com.wearables.ge.safteynet_gas_sensor.utils.VoltageAlarmStateChar;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 public class MainTabbedActivity extends FragmentActivity implements ActionBar.TabListener {
@@ -180,7 +185,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
             alert.setView(input);
 
             alert.setPositiveButton(R.string.dialog_accept_button_message, (dialog, whichButton) -> {
-                mService.writeToVoltageAlarmConfigChar(GattAttributes.MESSAGE_TYPE_RENAME, input.getText().toString());
+                //mService.writeToVoltageAlarmConfigChar(GattAttributes.MESSAGE_TYPE_RENAME, input.getText().toString());
             });
 
             alert.setNegativeButton(R.string.dialog_cancel_button_message, (dialog, whichButton) -> Log.d(TAG, "Rename Device dialog closed"));
@@ -219,11 +224,11 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         if(connectedDevice != null){
             MenuItem devModeItem = menuBar.findItem(R.id.dev_mode);
             if(!devMode){
-                mService.writeToVoltageAlarmConfigChar(GattAttributes.MESSAGE_TYPE_MODE, Character.toString((char) 2));
+                //mService.writeToVoltageAlarmConfigChar(GattAttributes.MESSAGE_TYPE_MODE, Character.toString((char) 2));
                 devModeItem.setTitle(R.string.normal_mode_menu_item);
                 devMode = true;
             } else {
-                mService.writeToVoltageAlarmConfigChar(GattAttributes.MESSAGE_TYPE_MODE, Character.toString((char) 1));
+                //mService.writeToVoltageAlarmConfigChar(GattAttributes.MESSAGE_TYPE_MODE, Character.toString((char) 1));
                 devModeItem.setTitle(R.string.dev_mode_menu_item);
                 devMode = false;
             }
@@ -275,18 +280,6 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
             if (action != null) {
                 switch (action) {
                     case BluetoothService.ACTION_GATT_SERVICES_DISCOVERED:
-                        Log.d(TAG, "ACTION_GATT_SERVICES_DISCOVERED broadcast received");
-                        //good indication that the device is successfully connected
-                        Toast.makeText(mPairingTabFragment.getContext(), "Device Connected", Toast.LENGTH_LONG).show();
-                        mService.setNotifyOnCharacteristics();
-                        break;
-                    case BluetoothService.ACTION_GATT_VOLTAGE_BAND_DISCOVERED:
-                        Log.d(TAG, "ACTION_GATT_SERVICES_DISCOVERED broadcast received");
-                        //good indication that the device is successfully connected
-                        Toast.makeText(mPairingTabFragment.getContext(), "Device Connected", Toast.LENGTH_LONG).show();
-                        mService.setNotifyOnCharacteristics();
-                        break;
-                    case BluetoothService.ACTION_GATT_GAS_SENSOR_DISCOVERED:
                         Log.d(TAG, "ACTION_GATT_SERVICES_DISCOVERED broadcast received");
                         //good indication that the device is successfully connected
                         Toast.makeText(mPairingTabFragment.getContext(), "Device Connected", Toast.LENGTH_LONG).show();
@@ -404,13 +397,11 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                     mGasDeviceTabFragment.updateBatteryLevel(extraIntData);
                 }
                 Log.d(TAG, "Battery level: " + extraIntData + "%");
-            } else if(extraUuid.equals(GattAttributes.VOLTAGE_ALARM_STATE_CHARACTERISTIC_UUID)){
-                VoltageAlarmStateChar voltageAlarmState = new VoltageAlarmStateChar(value);
-                Log.d(TAG, "VOLTAGE_ALARM_STATE value: " + value);
-            } else if(extraUuid.equals(GattAttributes.VOLTAGE_ALARM_CONFIG_CHARACTERISTIC_UUID)){
-                Log.d(TAG, "VOLTAGE_ALARM_CONFIG value: " + value);
-            } else if(extraUuid.equals(GattAttributes.ACCELEROMETER_DATA_CHARACTERISTIC_UUID)){
-                Log.d(TAG, "ACCELEROMETER_DATA value: " + value);
+            } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_DATA_CHARACTERISTIC_UUID)){
+                GasSensorData data = new GasSensorData(value);
+                Log.d(TAG, "GAS_SENSOR_DATA value: " + value);
+            } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_CONFIG_DATA_CHARACTERISTIC_UUID)){
+                Log.d(TAG, "GAS_SENSOR_CONFIG_DATA value: " + value);
             } else if(extraUuid.equals(GattAttributes.TEMP_HUMIDITY_PRESSURE_DATA_CHARACTERISTIC_UUID)){
                 TempHumidPressure tempHumidPressure = new TempHumidPressure(value);
                 if(mGasDeviceTabFragment.isVisible()){
@@ -422,12 +413,14 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                     mGasHistoryTabFragment.updateTempHumidityPressureGraph(tempHumidPressure);
                 }
                 Log.d(TAG, "TEMP_HUMIDITY_PRESSURE_DATA value: " + value);
-            } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_DATA_CHARACTERISTIC_UUID)){
-                Log.d(TAG, "GAS_SENSOR_DATA value: " + value);
-            } else if(extraUuid.equals(GattAttributes.OPTICAL_SENSOR_DATA_CHARACTERISTIC_UUID)){
-                Log.d(TAG, "OPTICAL_SENSOR_DATA value: " + value);
-            } else if(extraUuid.equals(GattAttributes.STREAMING_DATA_CHARACTERISTIC_UUID)){
-                Log.d(TAG, "STREAMING_DATA value: " + value);
+            } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_1_DATA_CHARACTERISTIC_UUID)){
+                Log.d(TAG, "GAS_SENSOR_1_DATA value: " + value);
+            } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_2_DATA_CHARACTERISTIC_UUID)){
+                Log.d(TAG, "GAS_SENSOR_2_DATA value: " + value);
+            } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_3_DATA_CHARACTERISTIC_UUID)){
+                Log.d(TAG, "GAS_SENSOR_3_DATA value: " + value);
+            } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_4_DATA_CHARACTERISTIC_UUID)) {
+                Log.d(TAG, "GAS_SENSOR_4_DATA value: " + value);
             } else {
                 Log.d(TAG, "Received message: " + value + " with UUID: " + extraUuid);
             }

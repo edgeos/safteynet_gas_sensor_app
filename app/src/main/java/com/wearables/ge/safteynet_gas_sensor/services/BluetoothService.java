@@ -101,8 +101,8 @@ public class BluetoothService extends Service {
         }
     }
 
-    public void writeToVoltageAlarmConfigChar(int messageType, String message){
-        BluetoothGattService voltageService = connectedGatt.getService(GattAttributes.VOLTAGE_WRISTBAND_SERVICE_UUID);
+    /*public void writeToVoltageAlarmConfigChar(int messageType, String message){
+        BluetoothGattService voltageService = connectedGatt.getService(GattAttributes.GAS_SENSOR_SERVICE_UUID);
         BluetoothGattCharacteristic alarmThreshChar = voltageService.getCharacteristic(GattAttributes.VOLTAGE_ALARM_CONFIG_CHARACTERISTIC_UUID);
         int threshold = 0;
         if(messageType == GattAttributes.MESSAGE_TYPE_RENAME){
@@ -142,14 +142,14 @@ public class BluetoothService extends Service {
 
         writeCharacteristic(alarmThreshChar, messageBytes);
 
-        /*try {
+        *//*try {
             Method localMethod = connectedGatt.getClass().getMethod("refresh");
             localMethod.invoke(connectedGatt);
             Log.d(TAG, "Cache refreshed");
         } catch(Exception localException) {
             Log.d(TAG, "Exception refreshing BT cache: %s" + localException.toString());
-        }*/
-    }
+        }*//*
+    }*/
 
     private class GattClientCallback extends BluetoothGattCallback {
 
@@ -184,24 +184,18 @@ public class BluetoothService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             Log.d(TAG, "Services discovered: ");
+            for(BluetoothGattService service : gatt.getServices()){
+                Log.d(TAG, service.getUuid().toString());
+                Log.d(TAG, "With characteristics: ");
+                for(BluetoothGattCharacteristic chr : service.getCharacteristics()){
+                    Log.d(TAG, chr.getUuid().toString());
+                }
+            }
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 Log.d(TAG, "Problem with BLE connection, status not successful: " + status);
                 return;
             }
-            List<UUID> serviceUUIDs = new ArrayList<>();
-            for(BluetoothGattService service : gatt.getServices()){
-                serviceUUIDs.add(service.getUuid());
-            }
-            //check if it's a voltage band or a gas sensor
-            if(serviceUUIDs.contains(GattAttributes.VOLTAGE_WRISTBAND_SERVICE_UUID)){
-                Log.d(TAG, "Voltage Band detected");
-                broadcastUpdate(ACTION_GATT_VOLTAGE_BAND_DISCOVERED);
-            } else if (serviceUUIDs.contains(GattAttributes.GAS_SENSOR_SERVICE_UUID)){
-                Log.d(TAG, "Gas sensor detected");
-                broadcastUpdate(ACTION_GATT_GAS_SENSOR_DISCOVERED);
-            } else {
-                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
-            }
+            broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
         }
 
         @Override
@@ -239,17 +233,8 @@ public class BluetoothService extends Service {
         for (BluetoothGattService service : getSupportedGattServices()) {
             for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
                 UUID uuid = characteristic.getUuid();
-                if(uuid.equals(GattAttributes.BATT_LEVEL_CHAR_UUID)
-                        || uuid.equals(GattAttributes.ACCELEROMETER_DATA_CHARACTERISTIC_UUID)
-                        || uuid.equals(GattAttributes.GAS_SENSOR_DATA_CHARACTERISTIC_UUID)
-                        || uuid.equals(GattAttributes.OPTICAL_SENSOR_DATA_CHARACTERISTIC_UUID)
-                        || uuid.equals(GattAttributes.STREAMING_DATA_CHARACTERISTIC_UUID)
-                        || uuid.equals(GattAttributes.TEMP_HUMIDITY_PRESSURE_DATA_CHARACTERISTIC_UUID)
-                        || uuid.equals(GattAttributes.VOLTAGE_ALARM_CONFIG_CHARACTERISTIC_UUID)
-                        || uuid.equals(GattAttributes.VOLTAGE_ALARM_STATE_CHARACTERISTIC_UUID)){
-                    Log.d(TAG, "Setting characteristic " + uuid + " to notify");
-                    setCharacteristicNotification(characteristic, true);
-                }
+                Log.d(TAG, "Setting characteristic " + uuid + " to notify");
+                setCharacteristicNotification(characteristic, true);
             }
         }
     }
