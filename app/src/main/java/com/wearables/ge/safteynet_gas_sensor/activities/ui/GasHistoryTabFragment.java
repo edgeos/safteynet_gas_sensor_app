@@ -148,6 +148,9 @@ public class GasHistoryTabFragment extends Fragment {
         GridLabelRenderer gas1GridLabel = gasGraph1.getGridLabelRenderer();
         gas1GridLabel.setHorizontalAxisTitle(getString(R.string.gas_sensor_graph_1_x_axis_label));
         gas1GridLabel.setVerticalAxisTitle(getString(R.string.gas_sensor_graph_1_y_axis_label));
+        /*gas1GridLabel.setHumanRounding(false);
+        gas1GridLabel.setNumHorizontalLabels(10);
+        gas1GridLabel.setNumVerticalLabels(10);*/
         gasGraph1.getGridLabelRenderer().setLabelFormatter(simpleTimeLabel);
 
         gasGraph2 = rootView.findViewById(R.id.gas_sensor_graph_2);
@@ -217,6 +220,11 @@ public class GasHistoryTabFragment extends Fragment {
     }
 
     public void updateTempHumidityPressureGraph(TempHumidPressure tempHumidPressure){
+        if(temperatureSeries == null || humiditySeries == null || pressureSeries == null){
+            temperatureSeries = new LineGraphSeries<>();
+            humiditySeries = new LineGraphSeries<>();
+            pressureSeries = new LineGraphSeries<>();
+        }
         temperatureSeries.appendData(new DataPoint(tempHumidPressure.getDate(), tempHumidPressure.getTemp()), false, 300);
         humiditySeries.appendData(new DataPoint(tempHumidPressure.getDate(), tempHumidPressure.getHumid()), false, 300);
         pressureSeries.appendData(new DataPoint(tempHumidPressure.getDate(), tempHumidPressure.getPres()), false, 300);
@@ -240,6 +248,11 @@ public class GasHistoryTabFragment extends Fragment {
     }
 
     public void updateGasGraphs(GasSensorData data){
+        if(gasGraph1Series == null || gasGraph2Series == null || gasPpmSeries == null){
+            gasGraph1Series = new LineGraphSeries<>();
+            gasGraph2Series = new LineGraphSeries<>();
+            gasPpmSeries = new LineGraphSeries<>();
+        }
         gasGraph1Series.appendData(new DataPoint(data.getTime(), data.getZ_real()),  false, 60);
         gasGraph2Series.appendData(new DataPoint(data.getTime(), data.getZ_imaginary()),  false, 60);
         gasPpmSeries.appendData(new DataPoint(data.getTime(), data.getGas_ppm()),  false, 60);

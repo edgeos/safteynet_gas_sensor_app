@@ -27,6 +27,9 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.client.AWSStartupHandler;
+import com.amazonaws.mobile.client.AWSStartupResult;
 import com.wearables.ge.safteynet_gas_sensor.R;
 import com.wearables.ge.safteynet_gas_sensor.activities.ui.GasDeviceTabFragment;
 import com.wearables.ge.safteynet_gas_sensor.activities.ui.GasHistoryTabFragment;
@@ -133,6 +136,13 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         //This is because we don't need the location service to send updates to the UI.
         //We only need to grab the latest coordinates from the location service.
         LocationService.startLocationService(this);
+
+        AWSMobileClient.getInstance().initialize(this, new AWSStartupHandler() {
+            @Override
+            public void onComplete(AWSStartupResult awsStartupResult) {
+                Log.d("YourMainActivity", "AWSMobileClient is instantiated and you are connected to AWS!");
+            }
+        }).execute();
 
     }
 
@@ -424,6 +434,9 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                 Log.d(TAG, "GAS_SENSOR_CONFIG_DATA value: " + value);
             } else if(extraUuid.equals(GattAttributes.TEMP_HUMIDITY_PRESSURE_DATA_CHARACTERISTIC_UUID)){
                 TempHumidPressure tempHumidPressure = new TempHumidPressure(value);
+                if(tempHumidPressure.getDate() == null){
+                    return;
+                }
                 if(mGasDeviceTabFragment.isVisible()){
                     mGasDeviceTabFragment.updateHumidity(tempHumidPressure.getHumid());
                     mGasDeviceTabFragment.updateTemperature(tempHumidPressure.getTemp());

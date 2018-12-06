@@ -95,6 +95,7 @@ public class GasDeviceTabFragment extends Fragment {
 
         Spinner gasSensorDropdown = rootView.findViewById(R.id.gas_sensor_dropdown);
         int numSensors = 4;
+        sensorList = new ArrayList<>();
         for(int i = 1; i < numSensors + 1; i++){
             String itemName = "Gas Sensor " + i;
             sensorList.add(itemName);
