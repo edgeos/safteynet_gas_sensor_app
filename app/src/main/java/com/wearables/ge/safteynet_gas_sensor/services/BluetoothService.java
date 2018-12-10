@@ -28,6 +28,7 @@ import com.wearables.ge.safteynet_gas_sensor.utils.QueueItem;
 import com.wearables.ge.safteynet_gas_sensor.utils.GattAttributes;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -93,6 +94,8 @@ public class BluetoothService extends Service {
         //disconnect
         Log.d(TAG, "Attempting to disconnect " + deviceName);
         if (connectedGatt != null) {
+            Boolean refreshed = refreshDeviceCache(connectedGatt);
+            Log.d(TAG, "Device cache refreshed: " + refreshed);
             connectedGatt.disconnect();
             connectedGatt.close();
             connectedGatt = null;
@@ -101,55 +104,16 @@ public class BluetoothService extends Service {
         }
     }
 
-    /*public void writeToVoltageAlarmConfigChar(int messageType, String message){
-        BluetoothGattService voltageService = connectedGatt.getService(GattAttributes.GAS_SENSOR_SERVICE_UUID);
-        BluetoothGattCharacteristic alarmThreshChar = voltageService.getCharacteristic(GattAttributes.VOLTAGE_ALARM_CONFIG_CHARACTERISTIC_UUID);
-        int threshold = 0;
-        if(messageType == GattAttributes.MESSAGE_TYPE_RENAME){
-            message = String.format("%1$-" + 16 + "s", message);
-        } else if(messageType == GattAttributes.MESSAGE_TYPE_ALARM_THRESHOLD){
-            try {
-                threshold = Integer.parseInt(message);
-                message = "";
-            } catch (NumberFormatException e){
-                Log.d(TAG, "Invalid AlarmThreshold value");
-            }
-        }
-
-        message = Character.toString((char) messageType) + message;
-        byte[] messageBytes = new byte[0];
+    private boolean refreshDeviceCache(BluetoothGatt gatt){
         try {
-            messageBytes = message.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            Log.d(TAG, "Unable to convert message to bytes" + e.getMessage());
+            Method localMethod = gatt.getClass().getMethod("refresh", new Class[0]);
+            return (Boolean) localMethod.invoke(gatt, new Object[0]);
         }
-
-        if(messageType == GattAttributes.MESSAGE_TYPE_ALARM_THRESHOLD){
-            byte[] thresholdBytes = ByteBuffer.allocate(4).putInt(threshold).order(ByteOrder.LITTLE_ENDIAN).array();
-            byte[] newMessage = new byte[messageBytes.length + thresholdBytes.length];
-            System.arraycopy(messageBytes, 0, newMessage, 0, messageBytes.length);
-            System.arraycopy(thresholdBytes, 0, newMessage, messageBytes.length, thresholdBytes.length);
-            messageBytes = newMessage;
+        catch (Exception localException) {
+            Log.e(TAG, "An exception occured while refreshing device");
         }
-
-        //try to print message bytes as hex for debugging
-        final StringBuilder stringBuilder = new StringBuilder(messageBytes.length);
-        for(byte byteChar : messageBytes){
-            stringBuilder.append(String.format("%02x ", byteChar));
-        }
-        String value = stringBuilder.toString();
-        Log.d(TAG, "Writing value: " + value + " to Alarm config characteristic");
-
-        writeCharacteristic(alarmThreshChar, messageBytes);
-
-        *//*try {
-            Method localMethod = connectedGatt.getClass().getMethod("refresh");
-            localMethod.invoke(connectedGatt);
-            Log.d(TAG, "Cache refreshed");
-        } catch(Exception localException) {
-            Log.d(TAG, "Exception refreshing BT cache: %s" + localException.toString());
-        }*//*
-    }*/
+        return false;
+    }
 
     private class GattClientCallback extends BluetoothGattCallback {
 
@@ -169,6 +133,8 @@ public class BluetoothService extends Service {
                 //set global variables for connected device and device name
                 if(gatt != null){
                     connectedGatt = gatt;
+                    /*Boolean refreshed = refreshDeviceCache(connectedGatt);
+                    Log.d(TAG, "Device cache refreshed: " + refreshed);*/
                     deviceName = gatt.getDevice().getName() == null ? gatt.getDevice().getAddress() : gatt.getDevice().getName();
                     Log.d(TAG, "Device connected: " + deviceName);
                 }
