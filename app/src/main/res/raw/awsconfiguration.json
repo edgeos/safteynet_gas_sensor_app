@@ -1,3 +1,46 @@
 {
-
+  "UserAgent": "MobileHub/1.0",
+  "Version": "1.0",
+  "CredentialsProvider": {
+    "CognitoIdentity": {
+      "Default": {
+        "PoolId": "us-east-1:5d187b19-6a85-4c84-995d-11bd320f566c",
+        "Region": "us-east-1"
+      }
+    }
+  },
+  "IdentityManager": {
+    "Default": {}
+  },
+  "CognitoUserPool": {
+    "Default": {
+      "PoolId": "us-east-1_VVIGGpsOM",
+      "AppClientId": "11dklp32mtgvmod5imrhtpv1fc",
+      "AppClientSecret": "1kj41up8ltttprae75enjeik1s7jqb7ijkfc8jgurv40im51maan",
+      "Region": "us-east-1"
+    }
+  },
+  "S3TransferUtility": {
+    "Default": {
+      "Bucket": "safteynetgasapp-userfiles-mobilehub-1946593320",
+      "Region": "us-east-1"
+    }
+  },
+  "PinpointAnalytics": {
+    "Default": {
+      "AppId": "b68682805fbf4adda269479cbfb4745c",
+      "Region": "us-east-1"
+    }
+  },
+  "PinpointTargeting": {
+    "Default": {
+      "Region": "us-east-1"
+    }
+  },
+  "UserFileManager": {
+    "Default": {
+      "Bucket": "safteynetgasapp-userfiles-mobilehub-1946593320",
+      "Region": "us-east-1"
+    }
+  }
 }

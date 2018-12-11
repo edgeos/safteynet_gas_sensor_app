@@ -101,6 +101,11 @@ public class GasDeviceTabFragment extends Fragment {
             sensorList.add(itemName);
         }
 
+        TextView activeGasSensorView = rootView.findViewById(R.id.active_gas_sensor);
+        if(activeGasSensorView != null && activeSensor != 0){
+            activeGasSensorView.setText(getString(R.string.active_gas_sensor, String.valueOf(activeSensor)));
+        }
+
         spinnerArrayAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.spinner_item, sensorList);
         spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
         gasSensorDropdown.setAdapter(spinnerArrayAdapter);

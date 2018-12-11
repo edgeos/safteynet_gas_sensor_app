@@ -1,5 +1,7 @@
 package com.wearables.ge.safteynet_gas_sensor.activities.ui;
 
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -11,12 +13,16 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GridLabelRenderer;
-import com.jjoe64.graphview.LabelFormatter;
-import com.jjoe64.graphview.Viewport;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.wearables.ge.safteynet_gas_sensor.R;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
 import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
@@ -25,30 +31,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class GasHistoryTabFragment extends Fragment {
-    private static final String TAG = "Gas History Tab Fragment";
+    private static final String TAG = "GasHistoryTabFragment";
 
     public static final String TAB_NAME = "History";
 
     private ScaleAnimation expandAnimation = new ScaleAnimation(1, 1, 0, 1);
     private ScaleAnimation collapseAnimation = new ScaleAnimation(1, 1, 1, 0);
 
-    GraphView tempGraph;
-    GraphView humidityGraph;
-    GraphView pressureGraph;
+    LineChart tempGraph;
+    LineChart humidityGraph;
+    LineChart pressureGraph;
 
-    GraphView gasGraph1;
-    GraphView gasGraph2;
-    GraphView gasPpmGraph;
+    LineChart gasGraph1;
+    LineChart gasGraph2;
+    LineChart gasPpmGraph;
 
     View rootView;
-
-    LineGraphSeries<DataPoint>  temperatureSeries = new LineGraphSeries<>();
-    LineGraphSeries<DataPoint>  humiditySeries = new LineGraphSeries<>();
-    LineGraphSeries<DataPoint>  pressureSeries = new LineGraphSeries<>();
-
-    LineGraphSeries<DataPoint>  gasGraph1Series = new LineGraphSeries<>();
-    LineGraphSeries<DataPoint>  gasGraph2Series = new LineGraphSeries<>();
-    LineGraphSeries<DataPoint>  gasPpmSeries = new LineGraphSeries<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -108,23 +106,6 @@ public class GasHistoryTabFragment extends Fragment {
         view.startAnimation(collapseAnimation);
     }
 
-    LabelFormatter simpleTimeLabel = new LabelFormatter() {
-        @Override
-        public String formatLabel(double value, boolean isValueX) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-            if(isValueX){
-                Date d = new Date((long) value);
-                return (dateFormat.format(d));
-            }
-            return "" + (int) value;
-        }
-
-        @Override
-        public void setViewport(Viewport viewport) {
-
-        }
-    };
-
     public void initializeGasSensorGraphs(){
         LinearLayout expandableLayout1 = rootView.findViewById(R.id.gasSensorCollapsibleContainer1);
         Switch switchButton1 = rootView.findViewById(R.id.gas_expand1);
@@ -140,38 +121,101 @@ public class GasHistoryTabFragment extends Fragment {
             }
         });
 
+        //z prime graph
         gasGraph1 = rootView.findViewById(R.id.gas_sensor_graph_1);
-        Viewport gasGraph1Viewport = gasGraph1.getViewport();
-        gasGraph1Viewport.setYAxisBoundsManual(true);
-        gasGraph1Viewport.setXAxisBoundsManual(true);
-        gasGraph1.addSeries(gasGraph1Series);
-        GridLabelRenderer gas1GridLabel = gasGraph1.getGridLabelRenderer();
-        gas1GridLabel.setHorizontalAxisTitle(getString(R.string.gas_sensor_graph_1_x_axis_label));
-        gas1GridLabel.setVerticalAxisTitle(getString(R.string.gas_sensor_graph_1_y_axis_label));
-        /*gas1GridLabel.setHumanRounding(false);
-        gas1GridLabel.setNumHorizontalLabels(10);
-        gas1GridLabel.setNumVerticalLabels(10);*/
-        gasGraph1.getGridLabelRenderer().setLabelFormatter(simpleTimeLabel);
+        gasGraph1.setDragEnabled(true);
+        gasGraph1.setScaleEnabled(true);
+        gasGraph1.setDrawGridBackground(false);
 
+        gasGraph1.setPinchZoom(true);
+
+        LineData data1 = new LineData();
+        data1.setValueTextColor(Color.RED);
+
+        gasGraph1.setData(data1);
+
+        XAxis xl = gasGraph1.getXAxis();
+        xl.setTypeface(Typeface.SANS_SERIF);
+        xl.setTextColor(Color.BLACK);
+        xl.setDrawGridLines(true);
+        xl.setEnabled(true);
+        xl.setDrawGridLines(true);
+        xl.setValueFormatter(new DateValueFormatter());
+
+        YAxis leftAxis = gasGraph1.getAxisLeft();
+        leftAxis.setTypeface(Typeface.SANS_SERIF);
+        leftAxis.setTextColor(Color.BLACK);
+        leftAxis.setDrawGridLines(true);
+
+        YAxis rightAxis = gasGraph1.getAxisRight();
+        rightAxis.setEnabled(false);
+
+        //z double prime graph
         gasGraph2 = rootView.findViewById(R.id.gas_sensor_graph_2);
-        Viewport gasGraph2Viewport = gasGraph2.getViewport();
-        gasGraph2Viewport.setYAxisBoundsManual(true);
-        gasGraph2Viewport.setXAxisBoundsManual(true);
-        gasGraph2.addSeries(gasGraph2Series);
-        GridLabelRenderer gas2GridLabel = gasGraph2.getGridLabelRenderer();
-        gas2GridLabel.setHorizontalAxisTitle(getString(R.string.gas_sensor_graph_2_x_axis_label));
-        gas2GridLabel.setVerticalAxisTitle(getString(R.string.gas_sensor_graph_2_y_axis_label));
-        gasGraph2.getGridLabelRenderer().setLabelFormatter(simpleTimeLabel);
+        gasGraph2.setDragEnabled(true);
+        gasGraph2.setScaleEnabled(true);
+        gasGraph2.setDrawGridBackground(false);
 
+        gasGraph2.setPinchZoom(true);
+
+        LineData data2 = new LineData();
+        data2.setValueTextColor(Color.RED);
+
+        gasGraph2.setData(data2);
+
+        XAxis xl2 = gasGraph2.getXAxis();
+        xl2.setTypeface(Typeface.SANS_SERIF);
+        xl2.setTextColor(Color.BLACK);
+        xl2.setDrawGridLines(true);
+        xl2.setEnabled(true);
+        xl2.setDrawGridLines(true);
+        xl2.setValueFormatter(new DateValueFormatter());
+
+        YAxis leftAxis2 = gasGraph2.getAxisLeft();
+        leftAxis2.setTypeface(Typeface.SANS_SERIF);
+        leftAxis2.setTextColor(Color.BLACK);
+        leftAxis2.setDrawGridLines(true);
+
+        YAxis rightAxis2 = gasGraph2.getAxisRight();
+        rightAxis2.setEnabled(false);
+
+        //ppm graph
         gasPpmGraph = rootView.findViewById(R.id.gas_sensor_graph_3);
-        Viewport gasPpmGraphViewport = gasPpmGraph.getViewport();
-        gasPpmGraphViewport.setYAxisBoundsManual(true);
-        gasPpmGraphViewport.setXAxisBoundsManual(true);
-        gasPpmGraph.addSeries(gasPpmSeries);
-        GridLabelRenderer gasPpmGridLabel = gasPpmGraph.getGridLabelRenderer();
-        gasPpmGridLabel.setHorizontalAxisTitle(getString(R.string.gas_ppm_graph_x_axis_label));
-        gasPpmGridLabel.setVerticalAxisTitle(getString(R.string.gas_ppm_graph_y_axis_label));
-        gasPpmGraph.getGridLabelRenderer().setLabelFormatter(simpleTimeLabel);
+        gasPpmGraph.setDragEnabled(true);
+        gasPpmGraph.setScaleEnabled(true);
+        gasPpmGraph.setDrawGridBackground(false);
+
+        gasPpmGraph.setPinchZoom(true);
+
+        LineData data3 = new LineData();
+        data3.setValueTextColor(Color.RED);
+
+        gasPpmGraph.setData(data3);
+
+        XAxis xl3 = gasPpmGraph.getXAxis();
+        xl3.setTypeface(Typeface.SANS_SERIF);
+        xl3.setTextColor(Color.BLACK);
+        xl3.setDrawGridLines(true);
+        xl3.setEnabled(true);
+        xl3.setDrawGridLines(true);
+        xl3.setValueFormatter(new DateValueFormatter());
+
+        YAxis leftAxis3 = gasPpmGraph.getAxisLeft();
+        leftAxis3.setTypeface(Typeface.SANS_SERIF);
+        leftAxis3.setTextColor(Color.BLACK);
+        leftAxis3.setDrawGridLines(true);
+
+        YAxis rightAxis3 = gasPpmGraph.getAxisRight();
+        rightAxis3.setEnabled(false);
+    }
+
+    public class DateValueFormatter implements IAxisValueFormatter {
+        @Override
+        public String getFormattedValue(float value, AxisBase axis){
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            Date d = new Date();
+            return (dateFormat.format(d));
+        }
     }
 
     public void initializeTempHumidPressureGraphs(){
@@ -188,90 +232,273 @@ public class GasHistoryTabFragment extends Fragment {
             }
         });
 
+        //temp graph
         tempGraph = rootView.findViewById(R.id.temperature_graph);
-        Viewport tempGraphViewport = tempGraph.getViewport();
-        tempGraphViewport.setYAxisBoundsManual(true);
-        tempGraphViewport.setXAxisBoundsManual(true);
-        tempGraph.addSeries(temperatureSeries);
-        GridLabelRenderer tempGridLabel = tempGraph.getGridLabelRenderer();
-        tempGridLabel.setHorizontalAxisTitle(getString(R.string.temperature_graph_x_axis_label));
-        tempGridLabel.setVerticalAxisTitle(getString(R.string.temperature_graph_y_axis_label));
-        tempGraph.getGridLabelRenderer().setLabelFormatter(simpleTimeLabel);
+        tempGraph.setDragEnabled(true);
+        tempGraph.setScaleEnabled(true);
+        tempGraph.setDrawGridBackground(false);
 
+        tempGraph.setPinchZoom(true);
+
+        LineData tempData = new LineData();
+        tempData.setValueTextColor(Color.RED);
+
+        tempGraph.setData(tempData);
+
+        XAxis tempX = tempGraph.getXAxis();
+        tempX.setTypeface(Typeface.SANS_SERIF);
+        tempX.setTextColor(Color.BLACK);
+        tempX.setDrawGridLines(true);
+        tempX.setEnabled(true);
+        tempX.setDrawGridLines(true);
+        tempX.setValueFormatter(new DateValueFormatter());
+
+        YAxis leftAxisTemp = tempGraph.getAxisLeft();
+        leftAxisTemp.setTypeface(Typeface.SANS_SERIF);
+        leftAxisTemp.setTextColor(Color.BLACK);
+        leftAxisTemp.setDrawGridLines(true);
+
+        YAxis rightAxisTemp = tempGraph.getAxisRight();
+        rightAxisTemp.setEnabled(false);
+
+        //humidity graph
         humidityGraph = rootView.findViewById(R.id.humidity_graph);
-        Viewport humidityGraphViewport = humidityGraph.getViewport();
-        humidityGraphViewport.setYAxisBoundsManual(true);
-        humidityGraphViewport.setXAxisBoundsManual(true);
-        humidityGraph.addSeries(humiditySeries);
-        GridLabelRenderer humidityGridLabel = humidityGraph.getGridLabelRenderer();
-        humidityGridLabel.setHorizontalAxisTitle(getString(R.string.humidity_graph_x_axis_label));
-        humidityGridLabel.setVerticalAxisTitle(getString(R.string.humidity_graph_y_axis_label));
-        humidityGraph.getGridLabelRenderer().setLabelFormatter(simpleTimeLabel);
+        humidityGraph.setDragEnabled(true);
+        humidityGraph.setScaleEnabled(true);
+        humidityGraph.setDrawGridBackground(false);
 
+        humidityGraph.setPinchZoom(true);
+
+        LineData humudData = new LineData();
+        humudData.setValueTextColor(Color.RED);
+
+        humidityGraph.setData(humudData);
+
+        XAxis humidX = humidityGraph.getXAxis();
+        humidX.setTypeface(Typeface.SANS_SERIF);
+        humidX.setTextColor(Color.BLACK);
+        humidX.setDrawGridLines(true);
+        humidX.setEnabled(true);
+        humidX.setDrawGridLines(true);
+        humidX.setValueFormatter(new DateValueFormatter());
+
+        YAxis leftAxisHumid = humidityGraph.getAxisLeft();
+        leftAxisHumid.setTypeface(Typeface.SANS_SERIF);
+        leftAxisHumid.setTextColor(Color.BLACK);
+        leftAxisHumid.setDrawGridLines(true);
+
+        YAxis rightAxisHumid = humidityGraph.getAxisRight();
+        rightAxisHumid.setEnabled(false);
+
+        //pressure graph
         pressureGraph = rootView.findViewById(R.id.pressure_graph);
-        Viewport pressureGraphViewport = pressureGraph.getViewport();
-        pressureGraphViewport.setYAxisBoundsManual(true);
-        pressureGraphViewport.setXAxisBoundsManual(true);
-        pressureGraph.addSeries(pressureSeries);
-        GridLabelRenderer pressureGridLabel = pressureGraph.getGridLabelRenderer();
-        pressureGridLabel.setHorizontalAxisTitle(getString(R.string.pressure_graph_x_axis_label));
-        pressureGridLabel.setVerticalAxisTitle(getString(R.string.pressure_graph_y_axis_label));
-        pressureGraph.getGridLabelRenderer().setLabelFormatter(simpleTimeLabel);
+        pressureGraph.setDragEnabled(true);
+        pressureGraph.setScaleEnabled(true);
+        pressureGraph.setDrawGridBackground(false);
+
+        pressureGraph.setPinchZoom(true);
+
+        LineData presData = new LineData();
+        presData.setValueTextColor(Color.RED);
+
+        pressureGraph.setData(presData);
+
+        XAxis presX = pressureGraph.getXAxis();
+        presX.setTypeface(Typeface.SANS_SERIF);
+        presX.setTextColor(Color.BLACK);
+        presX.setDrawGridLines(true);
+        presX.setEnabled(true);
+        presX.setDrawGridLines(true);
+        presX.setValueFormatter(new DateValueFormatter());
+
+        YAxis leftAxisPres = pressureGraph.getAxisLeft();
+        leftAxisPres.setTypeface(Typeface.SANS_SERIF);
+        leftAxisPres.setTextColor(Color.BLACK);
+        leftAxisPres.setDrawGridLines(true);
+
+        YAxis rightAxisPres = pressureGraph.getAxisRight();
+        rightAxisPres.setEnabled(false);
     }
 
-    public void updateTempHumidityPressureGraph(TempHumidPressure tempHumidPressure){
-        if(temperatureSeries == null || humiditySeries == null || pressureSeries == null){
-            temperatureSeries = new LineGraphSeries<>();
-            humiditySeries = new LineGraphSeries<>();
-            pressureSeries = new LineGraphSeries<>();
-        }
-        temperatureSeries.appendData(new DataPoint(tempHumidPressure.getDate(), tempHumidPressure.getTemp()), false, 300);
-        humiditySeries.appendData(new DataPoint(tempHumidPressure.getDate(), tempHumidPressure.getHumid()), false, 300);
-        pressureSeries.appendData(new DataPoint(tempHumidPressure.getDate(), tempHumidPressure.getPres()), false, 300);
-
-        if(tempGraph != null && humidityGraph != null && pressureGraph != null){
-            tempGraph.getViewport().setMinX(temperatureSeries.getLowestValueX());
-            tempGraph.getViewport().setMaxX(temperatureSeries.getHighestValueX());
-            tempGraph.getViewport().setMinY(temperatureSeries.getLowestValueY());
-            tempGraph.getViewport().setMaxY(temperatureSeries.getHighestValueY());
-
-            humidityGraph.getViewport().setMinX(humiditySeries.getLowestValueX());
-            humidityGraph.getViewport().setMaxX(humiditySeries.getHighestValueX());
-            humidityGraph.getViewport().setMinY(humiditySeries.getLowestValueY());
-            humidityGraph.getViewport().setMaxY(humiditySeries.getHighestValueY());
-
-            pressureGraph.getViewport().setMinX(pressureSeries.getLowestValueX());
-            pressureGraph.getViewport().setMaxX(pressureSeries.getHighestValueX());
-            pressureGraph.getViewport().setMinY(pressureSeries.getLowestValueY());
-            pressureGraph.getViewport().setMaxY(pressureSeries.getHighestValueY());
-        }
-    }
-
+    int i = 0;
     public void updateGasGraphs(GasSensorData data){
-        if(gasGraph1Series == null || gasGraph2Series == null || gasPpmSeries == null){
-            gasGraph1Series = new LineGraphSeries<>();
-            gasGraph2Series = new LineGraphSeries<>();
-            gasPpmSeries = new LineGraphSeries<>();
+        i++;
+        if(gasGraph1 != null ){
+            LineData data1 = gasGraph1.getData();
+            if (data1 != null) {
+
+                ILineDataSet set = data1.getDataSetByIndex(0);
+                // set.addEntry(...); // can be called as well
+
+                if (set == null) {
+                    set = createSet();
+                    data1.addDataSet(set);
+                }
+
+                data1.addEntry(new Entry(i, data.getZ_real()), 0);
+                data1.notifyDataChanged();
+
+                // let the chart know it's data has changed
+                gasGraph1.notifyDataSetChanged();
+
+                // limit the number of visible entries
+                gasGraph1.setVisibleXRangeMaximum(40);
+                // chart.setVisibleYRange(30, AxisDependency.LEFT);
+
+                // move to the latest entry
+                gasGraph1.moveViewToX(data1.getEntryCount());
+            }
         }
-        gasGraph1Series.appendData(new DataPoint(data.getTime(), data.getZ_real()),  false, 60);
-        gasGraph2Series.appendData(new DataPoint(data.getTime(), data.getZ_imaginary()),  false, 60);
-        gasPpmSeries.appendData(new DataPoint(data.getTime(), data.getGas_ppm()),  false, 60);
+        if(gasGraph2 != null ){
+            LineData data2 = gasGraph2.getData();
+            if (data2 != null) {
 
-        if(gasGraph1 != null && gasGraph2 != null && gasPpmGraph != null){
-            gasGraph1.getViewport().setMinX(gasGraph1Series.getLowestValueX());
-            gasGraph1.getViewport().setMaxX(gasGraph1Series.getHighestValueX());
-            gasGraph1.getViewport().setMinY(gasGraph1Series.getLowestValueY());
-            gasGraph1.getViewport().setMaxY(gasGraph1Series.getHighestValueY());
+                ILineDataSet set = data2.getDataSetByIndex(0);
+                // set.addEntry(...); // can be called as well
 
-            gasGraph2.getViewport().setMinX(gasGraph2Series.getLowestValueX());
-            gasGraph2.getViewport().setMaxX(gasGraph2Series.getHighestValueX());
-            gasGraph2.getViewport().setMinY(gasGraph2Series.getLowestValueY());
-            gasGraph2.getViewport().setMaxY(gasGraph2Series.getHighestValueY());
+                if (set == null) {
+                    set = createSet();
+                    data2.addDataSet(set);
+                }
 
-            gasPpmGraph.getViewport().setMinX(gasPpmSeries.getLowestValueX());
-            gasPpmGraph.getViewport().setMaxX(gasPpmSeries.getHighestValueX());
-            gasPpmGraph.getViewport().setMinY(gasPpmSeries.getLowestValueY());
-            gasPpmGraph.getViewport().setMaxY(gasPpmSeries.getHighestValueY());
+                data2.addEntry(new Entry(i, data.getZ_imaginary()), 0);
+                data2.notifyDataChanged();
+
+                // let the chart know it's data has changed
+                gasGraph2.notifyDataSetChanged();
+
+                // limit the number of visible entries
+                gasGraph2.setVisibleXRangeMaximum(40);
+                // chart.setVisibleYRange(30, AxisDependency.LEFT);
+
+                // move to the latest entry
+                gasGraph2.moveViewToX(data2.getEntryCount());
+            }
         }
+        if(gasPpmGraph != null ){
+            LineData data3 = gasPpmGraph.getData();
+            if (data3 != null) {
+
+                ILineDataSet set = data3.getDataSetByIndex(0);
+                // set.addEntry(...); // can be called as well
+
+                if (set == null) {
+                    set = createSet();
+                    data3.addDataSet(set);
+                }
+
+                data3.addEntry(new Entry(i, data.getGas_ppm()), 0);
+                data3.notifyDataChanged();
+
+                // let the chart know it's data has changed
+                gasPpmGraph.notifyDataSetChanged();
+
+                // limit the number of visible entries
+                gasPpmGraph.setVisibleXRangeMaximum(40);
+                // chart.setVisibleYRange(30, AxisDependency.LEFT);
+
+                // move to the latest entry
+                gasPpmGraph.moveViewToX(data3.getEntryCount());
+            }
+        }
+    }
+
+    int i2 = 0;
+    public void updateTempHumidityPressureGraph(TempHumidPressure tempHumidPressure){
+        i2++;
+        if(tempGraph != null ){
+            LineData data1 = tempGraph.getData();
+            if (data1 != null) {
+
+                ILineDataSet set = data1.getDataSetByIndex(0);
+                // set.addEntry(...); // can be called as well
+
+                if (set == null) {
+                    set = createSet();
+                    data1.addDataSet(set);
+                }
+
+                data1.addEntry(new Entry(i2, (float) tempHumidPressure.getTemp()), 0);
+                data1.notifyDataChanged();
+
+                // let the chart know it's data has changed
+                tempGraph.notifyDataSetChanged();
+
+                // limit the number of visible entries
+                tempGraph.setVisibleXRangeMaximum(40);
+                // chart.setVisibleYRange(30, AxisDependency.LEFT);
+
+                // move to the latest entry
+                tempGraph.moveViewToX(data1.getEntryCount());
+            }
+        }
+        if(humidityGraph != null ){
+            LineData data2 = humidityGraph.getData();
+            if (data2 != null) {
+
+                ILineDataSet set = data2.getDataSetByIndex(0);
+                // set.addEntry(...); // can be called as well
+
+                if (set == null) {
+                    set = createSet();
+                    data2.addDataSet(set);
+                }
+
+                data2.addEntry(new Entry(i2, (float) tempHumidPressure.getHumid()), 0);
+                data2.notifyDataChanged();
+
+                // let the chart know it's data has changed
+                humidityGraph.notifyDataSetChanged();
+
+                // limit the number of visible entries
+                humidityGraph.setVisibleXRangeMaximum(40);
+                // chart.setVisibleYRange(30, AxisDependency.LEFT);
+
+                // move to the latest entry
+                humidityGraph.moveViewToX(data2.getEntryCount());
+            }
+        }
+        if(pressureGraph != null ){
+            LineData data3 = pressureGraph.getData();
+            if (data3 != null) {
+
+                ILineDataSet set = data3.getDataSetByIndex(0);
+                // set.addEntry(...); // can be called as well
+
+                if (set == null) {
+                    set = createSet();
+                    data3.addDataSet(set);
+                }
+
+                data3.addEntry(new Entry(i2, (float) tempHumidPressure.getPres()), 0);
+                data3.notifyDataChanged();
+
+                // let the chart know it's data has changed
+                pressureGraph.notifyDataSetChanged();
+
+                // limit the number of visible entries
+                pressureGraph.setVisibleXRangeMaximum(40);
+                // chart.setVisibleYRange(30, AxisDependency.LEFT);
+
+                // move to the latest entry
+                pressureGraph.moveViewToX(data3.getEntryCount());
+            }
+        }
+    }
+
+    private LineDataSet createSet() {
+        LineDataSet set = new LineDataSet(null, "Dynamic Data");
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);
+        set.setColor(ColorTemplate.getHoloBlue());
+        set.setCircleColor(Color.WHITE);
+        set.setLineWidth(2f);
+        set.setCircleRadius(4f);
+        set.setFillAlpha(65);
+        set.setFillColor(ColorTemplate.getHoloBlue());
+        set.setHighLightColor(Color.rgb(244, 117, 117));
+        set.setValueTextColor(Color.WHITE);
+        set.setValueTextSize(9f);
+        set.setDrawValues(false);
+        return set;
     }
 }
