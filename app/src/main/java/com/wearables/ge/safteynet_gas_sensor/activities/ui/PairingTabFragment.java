@@ -97,27 +97,11 @@ public class PairingTabFragment extends Fragment {
         ((MainTabbedActivity)Objects.requireNonNull(getActivity())).disconnectDevice();
     }
 
-    /*private void refreshDeviceCache(BluetoothGatt gatt) {
-        if(gatt == null){
-            Log.d(TAG, "No device connected");
-        }
-        try {
-            Method localMethod = gatt.getClass().getMethod("refresh");
-            if(localMethod != null) {
-                localMethod.invoke(gatt);
-            }
-        } catch(Exception localException) {
-            Log.d(TAG, "Exception refreshing BT cache: %s" + localException.toString());
-        }
-    }*/
-
     public void startScan() {
         Log.d(TAG, "StartScan called");
         //add spinner to view
         spinner = rootView.findViewById(R.id.progressBar2);
         spinner.setVisibility(View.VISIBLE);
-
-        //refreshDeviceCache(BluetoothService.connectedGatt);
 
         //if the user hasn't allowed BT scanning  or if a scan is currently happening then stop here
         if (!hasPermissions() || mScanning) {
@@ -151,11 +135,6 @@ public class PairingTabFragment extends Fragment {
     private void scanComplete() {
         //on completed scan, remove spinner
         spinner.setVisibility(View.GONE);
-
-        //if no results, stop here
-        /*if (mScanResults.isEmpty()) {
-            return;
-        }*/
 
         if(MainTabbedActivity.connectedDevice != null && !checkedWhileScanning){
             View view = inflater.inflate(R.layout.fragment_tab_pairing_row, null);
@@ -264,7 +243,7 @@ public class PairingTabFragment extends Fragment {
             Log.d(TAG, "Found device: " + objName);
             if(!scanResults.containsKey(objName)){
                 View view = inflater.inflate(R.layout.fragment_tab_pairing_row, null);
-                linLayout.addView(view, 0);
+                linLayout.addView(view, linLayout.indexOfChild(spinner));
 
                 ((TextView) view.findViewById(R.id.text)).setText(objName);
 
