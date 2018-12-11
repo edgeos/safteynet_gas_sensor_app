@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import static android.content.Context.BLUETOOTH_SERVICE;
 
@@ -52,7 +51,6 @@ public class PairingTabFragment extends Fragment {
 
     private boolean mScanning;
     private Handler mHandler;
-    //private Map<String, BluetoothDevice> mScanResults;
 
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mBluetoothLeScanner;

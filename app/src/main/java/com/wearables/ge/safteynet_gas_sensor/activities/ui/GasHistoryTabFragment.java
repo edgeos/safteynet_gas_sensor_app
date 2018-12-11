@@ -354,7 +354,6 @@ public class GasHistoryTabFragment extends Fragment {
             if (data2 != null) {
 
                 ILineDataSet set = data2.getDataSetByIndex(0);
-                // set.addEntry(...); // can be called as well
 
                 if (set == null) {
                     set = createSet();
@@ -364,14 +363,9 @@ public class GasHistoryTabFragment extends Fragment {
                 data2.addEntry(new Entry(i, data.getZ_imaginary()), 0);
                 data2.notifyDataChanged();
 
-                // let the chart know it's data has changed
                 gasGraph2.notifyDataSetChanged();
 
-                // limit the number of visible entries
                 gasGraph2.setVisibleXRangeMaximum(40);
-                // chart.setVisibleYRange(30, AxisDependency.LEFT);
-
-                // move to the latest entry
                 gasGraph2.moveViewToX(data2.getEntryCount());
             }
         }
@@ -380,7 +374,6 @@ public class GasHistoryTabFragment extends Fragment {
             if (data3 != null) {
 
                 ILineDataSet set = data3.getDataSetByIndex(0);
-                // set.addEntry(...); // can be called as well
 
                 if (set == null) {
                     set = createSet();
@@ -390,14 +383,9 @@ public class GasHistoryTabFragment extends Fragment {
                 data3.addEntry(new Entry(i, data.getGas_ppm()), 0);
                 data3.notifyDataChanged();
 
-                // let the chart know it's data has changed
                 gasPpmGraph.notifyDataSetChanged();
 
-                // limit the number of visible entries
                 gasPpmGraph.setVisibleXRangeMaximum(40);
-                // chart.setVisibleYRange(30, AxisDependency.LEFT);
-
-                // move to the latest entry
                 gasPpmGraph.moveViewToX(data3.getEntryCount());
             }
         }
@@ -411,7 +399,6 @@ public class GasHistoryTabFragment extends Fragment {
             if (data1 != null) {
 
                 ILineDataSet set = data1.getDataSetByIndex(0);
-                // set.addEntry(...); // can be called as well
 
                 if (set == null) {
                     set = createSet();
@@ -421,14 +408,9 @@ public class GasHistoryTabFragment extends Fragment {
                 data1.addEntry(new Entry(i2, (float) tempHumidPressure.getTemp()), 0);
                 data1.notifyDataChanged();
 
-                // let the chart know it's data has changed
                 tempGraph.notifyDataSetChanged();
 
-                // limit the number of visible entries
                 tempGraph.setVisibleXRangeMaximum(40);
-                // chart.setVisibleYRange(30, AxisDependency.LEFT);
-
-                // move to the latest entry
                 tempGraph.moveViewToX(data1.getEntryCount());
             }
         }
@@ -437,7 +419,6 @@ public class GasHistoryTabFragment extends Fragment {
             if (data2 != null) {
 
                 ILineDataSet set = data2.getDataSetByIndex(0);
-                // set.addEntry(...); // can be called as well
 
                 if (set == null) {
                     set = createSet();
@@ -447,14 +428,9 @@ public class GasHistoryTabFragment extends Fragment {
                 data2.addEntry(new Entry(i2, (float) tempHumidPressure.getHumid()), 0);
                 data2.notifyDataChanged();
 
-                // let the chart know it's data has changed
                 humidityGraph.notifyDataSetChanged();
 
-                // limit the number of visible entries
                 humidityGraph.setVisibleXRangeMaximum(40);
-                // chart.setVisibleYRange(30, AxisDependency.LEFT);
-
-                // move to the latest entry
                 humidityGraph.moveViewToX(data2.getEntryCount());
             }
         }
@@ -463,7 +439,6 @@ public class GasHistoryTabFragment extends Fragment {
             if (data3 != null) {
 
                 ILineDataSet set = data3.getDataSetByIndex(0);
-                // set.addEntry(...); // can be called as well
 
                 if (set == null) {
                     set = createSet();
@@ -473,14 +448,9 @@ public class GasHistoryTabFragment extends Fragment {
                 data3.addEntry(new Entry(i2, (float) tempHumidPressure.getPres()), 0);
                 data3.notifyDataChanged();
 
-                // let the chart know it's data has changed
                 pressureGraph.notifyDataSetChanged();
 
-                // limit the number of visible entries
                 pressureGraph.setVisibleXRangeMaximum(40);
-                // chart.setVisibleYRange(30, AxisDependency.LEFT);
-
-                // move to the latest entry
                 pressureGraph.moveViewToX(data3.getEntryCount());
             }
         }

@@ -30,29 +30,6 @@
                 android:text="Current Device Name" />
 
             <LinearLayout
-                android:id="@+id/sampleRateLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:orientation="vertical">
-
-                <SeekBar
-                    android:id="@+id/sampleRateBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:max="100"
-                    android:progress="50" />
-
-                <TextView
-                    android:id="@+id/sampleRateView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/frequency_bar_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

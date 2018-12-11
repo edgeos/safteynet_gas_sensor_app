@@ -27,11 +27,7 @@ import com.wearables.ge.safteynet_gas_sensor.utils.BLEQueue;
 import com.wearables.ge.safteynet_gas_sensor.utils.QueueItem;
 import com.wearables.ge.safteynet_gas_sensor.utils.GattAttributes;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

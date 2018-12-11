@@ -13,7 +13,6 @@ import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.wearables.ge.safteynet_gas_sensor.R;
 import com.wearables.ge.safteynet_gas_sensor.activities.main.MainTabbedActivity;
@@ -110,33 +109,6 @@ public class GasDeviceTabFragment extends Fragment {
         spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
         gasSensorDropdown.setAdapter(spinnerArrayAdapter);
         gasSensorDropdown.setOnItemSelectedListener(new GasDeviceTabFragment.CustomOnItemSelectedListener());
-
-        int sampleRateStepSize = 25; // from 0 - 100 with increments of 25 points each
-        SeekBar sampleRateBar = rootView.findViewById(R.id.sampleRateBar);
-        sampleRateView = rootView.findViewById(R.id.sampleRateView);
-        sampleRateView.setText(getString(R.string.update_rate_value, sampleRateBar.getProgress()));
-        sampleRateBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // updated continuously as the user slides the thumb
-                int stepProgress = ((int)Math.round(progress/sampleRateStepSize))*sampleRateStepSize;
-                seekBar.setProgress(stepProgress);
-                if (seekBar.getProgress() > 0) {
-                    sampleRateView.setText(getString(R.string.update_rate_value, seekBar.getProgress()));
-                } else {
-                    sampleRateView.setText(getString(R.string.auto_sample_off_message));
-                }
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // called when the user first touches the SeekBar
-            }
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // called after the user finishes moving the SeekBar
-                //sampleRateView.setText("Sample Rate: " + seekBar.getProgress());
-            }
-        });
 
         logThresholdBar = rootView.findViewById(R.id.logThresholdBar);
         logThresholdView = rootView.findViewById(R.id.logThresholdView);

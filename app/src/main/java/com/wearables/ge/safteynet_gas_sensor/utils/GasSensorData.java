@@ -2,10 +2,7 @@ package com.wearables.ge.safteynet_gas_sensor.utils;
 
 import android.util.Log;
 
-import com.wearables.ge.safteynet_gas_sensor.activities.main.MainTabbedActivity;
-
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -60,10 +57,7 @@ public class GasSensorData {
             this.z_real = Float.intBitsToFloat(z_realInt);
             this.z_imaginary = Float.intBitsToFloat(z_imaginaryInt);
 
-            //this.time = Calendar.getInstance().getTimeInMillis();
             this.date = new Date();
-            /*MainTabbedActivity.i++;
-            this.time = MainTabbedActivity.i;*/
 
             /*Log.d(TAG, "gasSensor: " + gasSensor);
             Log.d(TAG, "gas_ppm: " + gas_ppm);
