@@ -42,10 +42,18 @@ public class GasSensorData {
             long z_realLong = Long.parseLong(zrealString, 16);
             long z_imaginaryLong = Long.parseLong(zimaginaryString, 16);
 
-            int gasPPMint = (int) gasPPMLong;
-            int frequencyInt = (int) frequencyLong;
-            int z_realInt = (int) z_realLong;
-            int z_imaginaryInt = (int) z_imaginaryLong;
+            int gasPPMint = 0;
+            int frequencyInt = 0;
+            int z_realInt = 0;
+            int z_imaginaryInt = 0;
+            try{
+                gasPPMint = (int) gasPPMLong;
+                frequencyInt = (int) frequencyLong;
+                z_realInt = (int) z_realLong;
+                z_imaginaryInt = (int) z_imaginaryLong;
+            } catch (Exception e){
+                Log.d(TAG, "Unable to parse long to type int: " + e.getMessage());
+            }
 
             this.gas_ppm = Float.intBitsToFloat(gasPPMint);
             this.frequency = Float.intBitsToFloat(frequencyInt);

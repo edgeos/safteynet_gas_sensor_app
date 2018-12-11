@@ -44,13 +44,10 @@ import com.wearables.ge.safteynet_gas_sensor.utils.BLEQueue;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
 import com.wearables.ge.safteynet_gas_sensor.utils.GattAttributes;
 import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
-import com.wearables.ge.safteynet_gas_sensor.utils.VoltageAlarmStateChar;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.UUID;
 
 public class MainTabbedActivity extends FragmentActivity implements ActionBar.TabListener {
