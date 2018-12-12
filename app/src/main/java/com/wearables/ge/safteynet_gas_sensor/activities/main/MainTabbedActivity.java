@@ -146,6 +146,26 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+
+        Intent intent = new Intent(this, BluetoothService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        mBound = true;
+        registerReceiver(mGattUpdateReceiver, createIntentFilter());
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(mConnection != null){
+            unbindService(mConnection);
+            unregisterReceiver(mGattUpdateReceiver);
+            mBound = false;
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_items, menu);
         this.menuBar = menu;
@@ -430,7 +450,6 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         }
     }
 
-    public static int i = 1;
     public static void showGasSensorData(GasSensorData data){
         DateFormat dfrmt = new SimpleDateFormat("HH:mm:ss:SSS");
         Date date = data.getDate();

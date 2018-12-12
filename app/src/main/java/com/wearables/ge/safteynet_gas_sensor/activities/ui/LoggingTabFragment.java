@@ -26,6 +26,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.wearables.ge.safteynet_gas_sensor.R;
+import com.wearables.ge.safteynet_gas_sensor.activities.main.MainTabbedActivity;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -78,6 +79,8 @@ public class LoggingTabFragment extends Fragment {
         });
 
         AWSMobileClient.getInstance().initialize(rootView.getContext()).execute();
+
+        setRetainInstance(true);
 
         return rootView;
     }
@@ -135,6 +138,8 @@ public class LoggingTabFragment extends Fragment {
         File file = new File(path, filename);
         try {
             FileWriter writer = new FileWriter(file);
+            String headerLine = "Device: " + MainTabbedActivity.connectedDevice.getAddress() + " Name: " + MainTabbedActivity.connectedDeviceName;
+            writer.append(headerLine + System.lineSeparator());
             for(String line : lines){
                 writer.append(line + System.lineSeparator());
             }
@@ -205,10 +210,6 @@ public class LoggingTabFragment extends Fragment {
         logEventsList.removeAllViews();
         lines = new ArrayList<>();
     }
-
-    /*public void saveFileToCloud(){
-
-    }*/
 
     public void saveFileToCloud() {
 

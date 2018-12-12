@@ -158,6 +158,8 @@ public class GasDeviceTabFragment extends Fragment {
 
         setConnectedMessage(isConnected);
 
+        setRetainInstance(true);
+
         return rootView;
     }
 

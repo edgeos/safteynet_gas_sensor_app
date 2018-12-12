@@ -47,7 +47,7 @@ public class PairingTabFragment extends Fragment {
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_FINE_LOCATION = 2;
-    private static final int SCAN_PERIOD = 50000;
+    private static final int SCAN_PERIOD = 10000;
 
     private boolean mScanning;
     private Handler mHandler;
@@ -78,6 +78,8 @@ public class PairingTabFragment extends Fragment {
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
         startScan();
+
+        setRetainInstance(true);
 
         return rootView;
     }

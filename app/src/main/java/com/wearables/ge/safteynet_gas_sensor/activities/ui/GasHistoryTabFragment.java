@@ -55,6 +55,7 @@ public class GasHistoryTabFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_tab_gas_history, container, false);
         initializeGasSensorGraphs();
         initializeTempHumidPressureGraphs();
+        setRetainInstance(true);
         return rootView;
 
     }
