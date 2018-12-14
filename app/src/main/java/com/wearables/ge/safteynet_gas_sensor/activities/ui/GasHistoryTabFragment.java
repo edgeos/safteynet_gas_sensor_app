@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -213,6 +214,7 @@ public class GasHistoryTabFragment extends Fragment {
     public class DateValueFormatter implements IAxisValueFormatter {
         @Override
         public String getFormattedValue(float value, AxisBase axis){
+            //Log.d(TAG, "x value: " + value + " i value: " + i);
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
             Date d = new Date();
             return (dateFormat.format(d));
@@ -270,10 +272,10 @@ public class GasHistoryTabFragment extends Fragment {
 
         humidityGraph.setPinchZoom(true);
 
-        LineData humudData = new LineData();
-        humudData.setValueTextColor(Color.RED);
+        LineData humidData = new LineData();
+        humidData.setValueTextColor(Color.RED);
 
-        humidityGraph.setData(humudData);
+        humidityGraph.setData(humidData);
 
         XAxis humidX = humidityGraph.getXAxis();
         humidX.setTypeface(Typeface.SANS_SERIF);
@@ -321,7 +323,7 @@ public class GasHistoryTabFragment extends Fragment {
         rightAxisPres.setEnabled(false);
     }
 
-    int i = 0;
+    float i = 0;
     public void updateGasGraphs(GasSensorData data){
         i++;
         if(gasGraph1 != null ){
@@ -392,7 +394,7 @@ public class GasHistoryTabFragment extends Fragment {
         }
     }
 
-    int i2 = 0;
+    float i2 = 0;
     public void updateTempHumidityPressureGraph(TempHumidPressure tempHumidPressure){
         i2++;
         if(tempGraph != null ){

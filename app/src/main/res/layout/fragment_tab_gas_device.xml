@@ -120,7 +120,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="@font/geinspirasansfamily"
-                    android:text="Z real: undefined"
+                    android:text="Z\': undefined"
                     android:textSize="18sp" />
 
                 <TextView
@@ -129,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="@font/geinspirasansfamily"
-                    android:text="Z imaginary: undefined"
+                    android:text="Z\'\': undefined"
                     android:textSize="18sp" />
 
                 <TextView

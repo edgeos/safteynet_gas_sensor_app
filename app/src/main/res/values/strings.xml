@@ -21,8 +21,8 @@
     <string name="humidity">Humidity: %1$s%%RH</string>
     <string name="pressure">Pressure: %1$s hPa</string>
     <string name="active_gas_sensor">Active Gas Sensor: %1$s</string>
-    <string name="z_real">Z real: %1$s</string>
-    <string name="z_imaginary">Z imaginary: %1$s</string>
+    <string name="z_real">Z\': %1$s</string>
+    <string name="z_imaginary">Z\'\': %1$s</string>
     <string name="gas_ppm">Gas ppm: %1$s</string>
 
     <string name="alarm_threshold">Alarm threshold: %1$d</string>

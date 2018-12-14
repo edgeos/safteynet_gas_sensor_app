@@ -146,6 +146,7 @@ public class PairingTabFragment extends Fragment {
             switchButton.setOnClickListener( v -> {
                 if (switchButton.isChecked()) {
                     connectDevice();
+                    switchButton.setId(R.id.connected_button);
                     Toast.makeText(this.getContext(), "connecting...", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this.getContext(), "disconnecting...", Toast.LENGTH_LONG).show();
@@ -241,14 +242,22 @@ public class PairingTabFragment extends Fragment {
             String deviceAddress = obj.getAddress();
             String objName = obj.getName() == null ? deviceAddress : obj.getName();
             Log.d(TAG, "Found device: " + objName);
-            if(!scanResults.containsKey(objName)){
+            if(!scanResults.containsKey(deviceAddress)){
                 View view = inflater.inflate(R.layout.fragment_tab_pairing_row, null);
                 linLayout.addView(view, linLayout.indexOfChild(spinner));
 
-                ((TextView) view.findViewById(R.id.text)).setText(objName);
+                String displayName;
+                if(objName.equals(deviceAddress)){
+                    displayName = "Unknown";
+                } else {
+                    displayName = objName;
+                }
+
+                ((TextView) view.findViewById(R.id.text)).setText(displayName);
+                ((TextView) view.findViewById(R.id.address)).setText(deviceAddress);
 
                 if(grey){
-                    view.setBackgroundColor(Color.parseColor("#f5f5f5"));
+                    view.setBackgroundColor(Color.parseColor("#e0e0e0"));
                     grey = false;
                 } else {
                     grey = true;
@@ -263,6 +272,7 @@ public class PairingTabFragment extends Fragment {
                         }
                         deviceName = objName;
                         connectedDevice = obj;
+                        switchButton.setId(R.id.connected_button);
                         connectDevice();
                         Toast.makeText(rootView.getContext(), "connecting...", Toast.LENGTH_SHORT).show();
                     } else {
@@ -271,7 +281,7 @@ public class PairingTabFragment extends Fragment {
                     }
                 });
 
-                scanResults.put(objName, obj);
+                scanResults.put(deviceAddress, obj);
             }
         }
     }

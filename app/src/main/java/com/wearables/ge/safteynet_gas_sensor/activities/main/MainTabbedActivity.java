@@ -25,6 +25,7 @@ import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -238,6 +239,10 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         mService.disconnectGattServer();
         connectedDevice = null;
         connectedDeviceName = null;
+        Switch button = findViewById(R.id.connected_button);
+        if(button != null){
+            button.setChecked(false);
+        }
     }
 
     public void showDeviceID(){

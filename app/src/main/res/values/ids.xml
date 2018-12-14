@@ -36,5 +36,6 @@
     <item type="id" name="gas_ppm" />
     <item type="id" name="num_sensors_bar" />
     <item type="id" name="num_sensors_bar_text" />
+    <item type="id" name="connected_button" />
 
 </resources>
