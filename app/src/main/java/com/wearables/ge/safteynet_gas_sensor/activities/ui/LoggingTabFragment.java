@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -37,7 +38,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -45,6 +45,9 @@ public class LoggingTabFragment extends Fragment {
     public static String TAG = "LoggingTabFragment";
     public static String TAB_NAME = "Logging";
     View rootView;
+
+    ProgressBar progressBar;
+    ConstraintLayout mainLayout;
 
     File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "gas_sensor");
 
@@ -87,6 +90,10 @@ public class LoggingTabFragment extends Fragment {
         AWSMobileClient.getInstance().initialize(rootView.getContext()).execute();
 
         setRetainInstance(true);
+
+        progressBar =rootView.findViewById(R.id.progressBar);
+        mainLayout = rootView.findViewById(R.id.logging_page_container_2);
+        mainLayout.removeView(progressBar);
 
         return rootView;
     }
@@ -246,6 +253,13 @@ public class LoggingTabFragment extends Fragment {
 
     String lastUploadedFileName;
     public void saveFileToCloud() {
+        //if there is nothing in the current log, don't save anything
+        if(lines.isEmpty()){
+            AlertDialog.Builder alert = new AlertDialog.Builder(new ContextThemeWrapper(rootView.getContext(), R.style.AlertDialogCustom));
+            alert.setTitle("Current Log is empty");
+            alert.show();
+            return;
+        }
 
         //get AWS transfer utility class
         TransferUtility transferUtility =
@@ -255,7 +269,7 @@ public class LoggingTabFragment extends Fragment {
                         .s3Client(new AmazonS3Client(AWSMobileClient.getInstance().getCredentialsProvider()))
                         .build();
 
-        //the below scenario will likely be true when the user selects upload for a live log that hasn't been saved to the device
+        //the below scenario will be true when the user selects upload for a live log that hasn't been saved to the device
         if(selectedFile == null || !viewingOldFile){
             saveFile();
             selectedFileName = savedFileName;
@@ -279,14 +293,8 @@ public class LoggingTabFragment extends Fragment {
                         selectedFileName,
                         selectedFile);
 
-        //show a progress bar
-        ProgressDialog progressDialog = new ProgressDialog(rootView.getContext());
-        progressDialog.setMessage("Uploading file");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setProgressNumberFormat(null);
-        progressDialog.setProgressPercentFormat(null);
-        progressDialog.show();
+        progressBar.setIndeterminate(true);
+        mainLayout.addView(progressBar);
 
         // Attach a listener to the observer to get state update and progress notifications
         uploadObserver.setTransferListener(new TransferListener() {
@@ -294,13 +302,19 @@ public class LoggingTabFragment extends Fragment {
             @Override
             public void onStateChanged(int id, TransferState state) {
                 if (TransferState.COMPLETED == state) {
-                    progressDialog.dismiss();
+                    mainLayout.removeView(progressBar);
                     Toast.makeText(rootView.getContext(), "File Uploaded!", Toast.LENGTH_SHORT).show();
 
                     //now delete file since it has been successfully uploaded
                     lastUploadedFileName = selectedFile.getName();
                     Boolean fileDeleted = selectedFile.delete();
                     Log.d(TAG, "File successfully uploaded to cloud instance, local file deleted status: " + fileDeleted);
+                } else if (TransferState.FAILED == state){
+                    mainLayout.removeView(progressBar);
+                    AlertDialog.Builder alert = new AlertDialog.Builder(new ContextThemeWrapper(rootView.getContext(), R.style.AlertDialogCustom));
+                    alert.setTitle("Unable to complete file transfer. Please check internet connection and try again.");
+                    alert.show();
+                    Log.d(TAG, "Transfer failed");
                 }
             }
 
@@ -309,20 +323,17 @@ public class LoggingTabFragment extends Fragment {
                 float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
                 int percentDone = (int)percentDonef;
 
-                progressDialog.setProgress(percentDone);
                 Log.d(TAG, "ID:" + id + " bytesCurrent: " + bytesCurrent
                         + " bytesTotal: " + bytesTotal + " " + percentDone + "%");
             }
 
             @Override
             public void onError(int id, Exception ex) {
-                // Handle errors
+                Log.d(TAG, "Error while attempting to upload file. Exception: " + ex.getMessage());
             }
 
         });
 
-        // If you prefer to poll for the data, instead of attaching a
-        // listener, check for the state and progress in the observer.
         if (TransferState.COMPLETED == uploadObserver.getState()) {
             Toast.makeText(rootView.getContext(), "File Uploaded!", Toast.LENGTH_SHORT).show();
         }

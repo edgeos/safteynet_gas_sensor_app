@@ -29,7 +29,9 @@ import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
 import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class GasHistoryTabFragment extends Fragment {
     private static final String TAG = "GasHistoryTabFragment";
@@ -221,6 +223,17 @@ public class GasHistoryTabFragment extends Fragment {
         }
     }
 
+    /*public class ZPrimeDateValueFormatter implements IAxisValueFormatter {
+        @Override
+        public String getFormattedValue(float value, AxisBase axis){
+            Log.d(TAG, "ZPrimeDateValueFormatter: x value: " + (int) value + " i value: " + i);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            Date d = gasSensorDataList.get((int) i - 1).getDate();
+            //Date d = new Date();
+            return (dateFormat.format(d));
+        }
+    }*/
+
     public void initializeTempHumidPressureGraphs(){
         LinearLayout expandableLayout3 = rootView.findViewById(R.id.collapsibleContainer3);
         Switch switchButton3 = rootView.findViewById(R.id.expand3);
@@ -323,8 +336,11 @@ public class GasHistoryTabFragment extends Fragment {
         rightAxisPres.setEnabled(false);
     }
 
-    float i = 0;
+    float i;
+    //public List<GasSensorData> gasSensorDataList = new ArrayList<>();
     public void updateGasGraphs(GasSensorData data){
+        //gasSensorDataList.add(data);
+        //i = gasSensorDataList.size();
         i++;
         if(gasGraph1 != null ){
             LineData data1 = gasGraph1.getData();
@@ -464,8 +480,9 @@ public class GasHistoryTabFragment extends Fragment {
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setColor(ColorTemplate.getHoloBlue());
         set.setCircleColor(Color.WHITE);
+        set.setCircleHoleColor(set.getColor());
         set.setLineWidth(2f);
-        set.setCircleRadius(4f);
+        set.setCircleRadius(3);
         set.setFillAlpha(65);
         set.setFillColor(ColorTemplate.getHoloBlue());
         set.setHighLightColor(Color.rgb(244, 117, 117));
