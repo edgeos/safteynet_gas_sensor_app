@@ -191,7 +191,7 @@ public class LoggingTabFragment extends Fragment {
             return;
         }
 
-        //get a list of all filed in the path directory
+        //get a list of all files in the path directory
         File[] files = path.listFiles();
         List<String> optionsList = new ArrayList<>();
 
