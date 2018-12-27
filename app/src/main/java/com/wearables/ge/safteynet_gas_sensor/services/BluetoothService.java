@@ -130,8 +130,8 @@ public class BluetoothService extends Service {
                 //set global variables for connected device and device name
                 if(gatt != null){
                     connectedGatt = gatt;
-                    /*Boolean refreshed = refreshDeviceCache(connectedGatt);
-                    Log.d(TAG, "Device cache refreshed: " + refreshed);*/
+                    Boolean refreshed = refreshDeviceCache(connectedGatt);
+                    Log.d(TAG, "Device cache refreshed: " + refreshed);
                     deviceName = gatt.getDevice().getName() == null ? gatt.getDevice().getAddress() : gatt.getDevice().getName();
                     Log.d(TAG, "Device connected: " + deviceName);
                 }
