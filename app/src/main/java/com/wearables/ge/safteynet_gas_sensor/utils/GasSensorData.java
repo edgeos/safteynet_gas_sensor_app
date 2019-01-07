@@ -2,112 +2,63 @@ package com.wearables.ge.safteynet_gas_sensor.utils;
 
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 public class GasSensorData {
-    public static String TAG = "GasSensorData";
-
-    public int gasSensor;
-    public float gas_ppm;
-    public float frequency;
-    public float z_real;
-    public float z_imaginary;
+    private static String TAG = "GasSensorData";
 
     public Date date;
 
+    private List<GasSensorDataItem> sensorDataList;
+
     public GasSensorData(String hexString){
         List<String> hexSplit = Arrays.asList(hexString.split("\\s+"));
-        if(hexSplit.size() == 17){
-            String gasSensorString = hexSplit.get(0);
-            String gasPpmString = hexSplit.get(4) + hexSplit.get(3) + hexSplit.get(2) + hexSplit.get(1);
-            String frequencyString = hexSplit.get(8) + hexSplit.get(7) + hexSplit.get(6) + hexSplit.get(5);
-            String zrealString = hexSplit.get(12) + hexSplit.get(11) + hexSplit.get(10) + hexSplit.get(9);
-            String zimaginaryString = hexSplit.get(16) + hexSplit.get(15) + hexSplit.get(14) + hexSplit.get(13);
-
-            this.gasSensor = Integer.parseInt(gasSensorString, 16);
-
-            /*Log.d(TAG, "gasSensorString: " + gasSensorString);
-            Log.d(TAG, "gasPpmString: " + gasPpmString);
-            Log.d(TAG, "frequencyString: " + frequencyString);
-            Log.d(TAG, "zrealString: " + zrealString);
-            Log.d(TAG, "zimaginaryString: " + zimaginaryString);*/
-
-            long gasPPMLong = Long.parseLong(gasPpmString, 16);
-            long frequencyLong = Long.parseLong(frequencyString, 16);
-            long z_realLong = Long.parseLong(zrealString, 16);
-            long z_imaginaryLong = Long.parseLong(zimaginaryString, 16);
-
-            int gasPPMint = 0;
-            int frequencyInt = 0;
-            int z_realInt = 0;
-            int z_imaginaryInt = 0;
-            try{
-                gasPPMint = (int) gasPPMLong;
-                frequencyInt = (int) frequencyLong;
-                z_realInt = (int) z_realLong;
-                z_imaginaryInt = (int) z_imaginaryLong;
-            } catch (Exception e){
-                Log.d(TAG, "Unable to parse long to type int: " + e.getMessage());
-            }
-
-            this.gas_ppm = Float.intBitsToFloat(gasPPMint);
-            this.frequency = Float.intBitsToFloat(frequencyInt);
-            this.z_real = Float.intBitsToFloat(z_realInt);
-            this.z_imaginary = Float.intBitsToFloat(z_imaginaryInt);
-
+        if((hexSplit.size() - 1) % 4 == 0){
             this.date = new Date();
 
-            /*Log.d(TAG, "gasSensor: " + gasSensor);
-            Log.d(TAG, "gas_ppm: " + gas_ppm);
-            Log.d(TAG, "frequency: " + frequency);
-            Log.d(TAG, "z_real: " + z_real);
-            Log.d(TAG, "z_imaginary: " + z_imaginary);*/
+            Integer totalMeasurements = Integer.parseInt(hexSplit.get(0), 16);
+
+            sensorDataList = new ArrayList<>();
+
+            for(int i = 0; i < totalMeasurements; i++){
+                int messagePacketByteSize = 14;
+                int x = messagePacketByteSize * i + 1;
+                int gasSensor = Integer.parseInt(hexSplit.get(x), 16);
+                Integer frequency = Integer.parseInt(hexSplit.get(x + 1), 16);
+
+                String zrealString = hexSplit.get(x + 5) + hexSplit.get(x + 4) + hexSplit.get(x + 3) + hexSplit.get(x + 2);
+                String zimaginaryString = hexSplit.get(x + 9) + hexSplit.get(x + 8) + hexSplit.get(x + 7) + hexSplit.get(x + 6);
+                String gasPpmString = hexSplit.get(x + 13) + hexSplit.get(x + 12) + hexSplit.get(x + 11) + hexSplit.get(x + 10);
+
+                long gasPPMLong = Long.parseLong(gasPpmString, 16);
+                long z_realLong = Long.parseLong(zrealString, 16);
+                long z_imaginaryLong = Long.parseLong(zimaginaryString, 16);
+
+                int gasPPMint = 0;
+                int z_realInt = 0;
+                int z_imaginaryInt = 0;
+                try{
+                    gasPPMint = (int) gasPPMLong;
+                    z_realInt = (int) z_realLong;
+                    z_imaginaryInt = (int) z_imaginaryLong;
+                } catch (Exception e){
+                    Log.d(TAG, "Unable to parse long to type int: " + e.getMessage());
+                }
+
+                float gas_ppm = Float.intBitsToFloat(gasPPMint);
+                float z_real = Float.intBitsToFloat(z_realInt);
+                float z_imaginary = Float.intBitsToFloat(z_imaginaryInt);
+
+                GasSensorDataItem sensorData = new GasSensorDataItem(gasSensor, gas_ppm, frequency, z_real, z_imaginary);
+                sensorDataList.add(sensorData);
+            }
         } else {
             Log.d(TAG, "Unexpected Gas data value size: " + hexSplit.size());
         }
 
-    }
-
-    public int getGasSensor() {
-        return gasSensor;
-    }
-
-    public void setGasSensor(int gasSensor) {
-        this.gasSensor = gasSensor;
-    }
-
-    public float getGas_ppm() {
-        return gas_ppm;
-    }
-
-    public void setGas_ppm(float gas_ppm) {
-        this.gas_ppm = gas_ppm;
-    }
-
-    public float getFrequency() {
-        return frequency;
-    }
-
-    public void setFrequency(float frequency) {
-        this.frequency = frequency;
-    }
-
-    public float getZ_real() {
-        return z_real;
-    }
-
-    public void setZ_real(float z_real) {
-        this.z_real = z_real;
-    }
-
-    public float getZ_imaginary() {
-        return z_imaginary;
-    }
-
-    public void setZ_imaginary(float z_imaginary) {
-        this.z_imaginary = z_imaginary;
     }
 
     public Date getDate() {
@@ -116,5 +67,13 @@ public class GasSensorData {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public List<GasSensorDataItem> getSensorDataList() {
+        return sensorDataList;
+    }
+
+    public void setSensorDataList(List<GasSensorDataItem> sensorDataList) {
+        this.sensorDataList = sensorDataList;
     }
 }

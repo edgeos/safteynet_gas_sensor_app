@@ -1,7 +1,6 @@
 package com.wearables.ge.safteynet_gas_sensor.activities.ui;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -51,6 +50,8 @@ public class LoggingTabFragment extends Fragment {
 
     File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "gas_sensor");
 
+    List<String> lines = new ArrayList<>();
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -97,8 +98,6 @@ public class LoggingTabFragment extends Fragment {
 
         return rootView;
     }
-
-    List<String> lines = new ArrayList<>();
 
     public void showFileText(){
         LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
@@ -222,7 +221,7 @@ public class LoggingTabFragment extends Fragment {
         alert.setTitle("Select a file");
         alert.setItems(optionsArray, (dialog, which) -> {
             Log.d(TAG, "Chose option #" + which + " filename: " + optionsList.get(which));
-            //grab the name of the file based o nthe index of the option selected
+            //grab the name of the file based on the index of the option selected
             selectedFileName = optionsList.get(which);
             selectedFile = new File(path, selectedFileName);
             //boolean for viewing an old file so the bluetooth service in the background doesn't update the list while you are viewing an old file

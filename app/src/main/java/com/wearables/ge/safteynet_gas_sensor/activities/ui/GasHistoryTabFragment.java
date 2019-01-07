@@ -26,6 +26,7 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.wearables.ge.safteynet_gas_sensor.R;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
+import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorDataItem;
 import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
 
 import java.text.SimpleDateFormat;
@@ -338,7 +339,7 @@ public class GasHistoryTabFragment extends Fragment {
 
     float i;
     //public List<GasSensorData> gasSensorDataList = new ArrayList<>();
-    public void updateGasGraphs(GasSensorData data){
+    public void updateGasGraphs(GasSensorDataItem data){
         //gasSensorDataList.add(data);
         //i = gasSensorDataList.size();
         i++;
