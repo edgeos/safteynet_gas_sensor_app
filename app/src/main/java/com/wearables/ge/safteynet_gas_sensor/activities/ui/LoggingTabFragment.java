@@ -103,6 +103,12 @@ public class LoggingTabFragment extends Fragment {
     public void showFileText(){
         LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
 
+        String firstLine = "Date, PPM, Gas Sensor Number, Frequency, Z', Z'', Temperature, Humidity, Pressure";
+        if(!lines.get(0).equals(firstLine)){
+            lines.add(0, firstLine);
+            Log.d(TAG, "First Line added");
+        }
+
         for(String line : lines){
             TextView textView = new TextView(rootView.getContext());
             textView.setText(line);
@@ -142,7 +148,7 @@ public class LoggingTabFragment extends Fragment {
 
         //use time epoch ms for filename
         Long time = Calendar.getInstance().getTimeInMillis();
-        savedFileName = String.valueOf(time) + "_gas_sensor_log.txt";
+        savedFileName = String.valueOf(time) + "_gas_sensor_log.csv";
 
         //log path for debugging
         Log.d(TAG, "Files Dir: " + path.getPath());
