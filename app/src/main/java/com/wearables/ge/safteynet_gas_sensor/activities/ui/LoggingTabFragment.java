@@ -102,8 +102,8 @@ public class LoggingTabFragment extends Fragment {
     public void showFileText(){
         LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
 
-        String firstLine = "Date, PPM, Gas Sensor Number, Frequency, Z', Z'', Temperature, Humidity, Pressure";
-        if(!lines.get(0).equals(firstLine)){
+        String firstLine = "Date, Gas Sensor Number, PPM, Frequency, Z', Z'', Temperature, Humidity, Pressure";
+        if(lines.isEmpty() || !lines.get(0).equals(firstLine)){
             lines.add(0, firstLine);
             Log.d(TAG, "First Line added");
         }

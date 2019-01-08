@@ -437,7 +437,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
             } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_DATA_CHARACTERISTIC_UUID)){
                 Log.d(TAG, "GAS_SENSOR_DATA value: " + value);
                 GasSensorData data = new GasSensorData(value);
-                showGasSensorData(data.getSensorDataList().get(0), data.getDate());
+                showGasSensorData(data, data.getDate());
 
                 //print all items for debugging
                 /*for(GasSensorDataItem item : data.getSensorDataList()){
@@ -467,21 +467,25 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         }
     }
 
-    public static void showGasSensorData(GasSensorDataItem data, Date date){
+    public void showGasSensorData(GasSensorData datum, Date date){
         DateFormat dfrmt = new SimpleDateFormat("HH:mm:ss:SSS");
         String dateString = (date != null) ? dfrmt.format(date) : "no date available";
         String temp = (tempHumidPressure != null) ? String.valueOf(tempHumidPressure.getTemp()) : "null";
         String humid = (tempHumidPressure != null) ? String.valueOf(tempHumidPressure.getHumid()) : "null";
         String pres = (tempHumidPressure != null) ? String.valueOf(tempHumidPressure.getPres()) : "null";
-        String message = dateString + ", " + data.getGas_ppm()
-                + ", " + data.getGasSensor()
-                + ", " + data.getFrequency()
-                + ", " + data.getZ_real()
-                + ", " + data.getZ_imaginary()
-                + ", " + temp
-                + ", " + humid
-                + ", " + pres;
-        mLoggingTabFragment.addItem(message);
+        for(GasSensorDataItem item : datum.getSensorDataList()){
+            String message = dateString + ", " + item.getGasSensor()
+                    + ", " + item.getGas_ppm()
+                    + ", " + item.getFrequency()
+                    + ", " + item.getZ_real()
+                    + ", " + item.getZ_imaginary()
+                    + ", " + temp
+                    + ", " + humid
+                    + ", " + pres;
+            mLoggingTabFragment.addItem(message);
+        }
+
+        GasSensorDataItem data = datum.getSensorDataList().get(0);
         mGasHistoryTabFragment.updateGasGraphs(data);
         if(mGasDeviceTabFragment.activeSensor != data.getGasSensor()){
             mGasDeviceTabFragment.updateActiveGasSensor(data.getGasSensor());
@@ -493,7 +497,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         }
     }
 
-    public static void showTempHumidPressure(TempHumidPressure tempHumidPressure){
+    public void showTempHumidPressure(TempHumidPressure tempHumidPressure){
         if(tempHumidPressure.getDate() == null){
             return;
         }

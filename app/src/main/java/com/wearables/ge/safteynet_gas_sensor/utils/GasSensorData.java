@@ -9,6 +9,7 @@ import java.util.List;
 
 public class GasSensorData {
     private static String TAG = "GasSensorData";
+    private static int messagePacketByteSize = 14;
 
     public Date date;
 
@@ -16,7 +17,8 @@ public class GasSensorData {
 
     public GasSensorData(String hexString){
         List<String> hexSplit = Arrays.asList(hexString.split("\\s+"));
-        if((hexSplit.size() - 1) % 4 == 0){
+        //make sure the list size is divisible by the size in bytes of each individual measurement message
+        if((hexSplit.size() - 1) % messagePacketByteSize == 0){
             this.date = new Date();
 
             Integer totalMeasurements = Integer.parseInt(hexSplit.get(0), 16);
@@ -24,7 +26,6 @@ public class GasSensorData {
             sensorDataList = new ArrayList<>();
 
             for(int i = 0; i < totalMeasurements; i++){
-                int messagePacketByteSize = 14;
                 int x = messagePacketByteSize * i + 1;
                 int gasSensor = Integer.parseInt(hexSplit.get(x), 16);
                 Integer frequency = Integer.parseInt(hexSplit.get(x + 1), 16);
@@ -58,7 +59,6 @@ public class GasSensorData {
         } else {
             Log.d(TAG, "Unexpected Gas data value size: " + hexSplit.size());
         }
-
     }
 
     public Date getDate() {
