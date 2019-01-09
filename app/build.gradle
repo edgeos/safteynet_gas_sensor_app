@@ -59,6 +59,11 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.+'
     implementation('com.amazonaws:aws-android-sdk-auth-ui:2.7.+@aar') { transitive = true }
 
+    //For AWS IoT support
+    implementation 'com.amazonaws:aws-android-sdk-iot:2.6.+'
+    implementation 'com.amazonaws:aws-android-sdk-core:2.6.22'
+    implementation ('com.amazonaws:aws-android-sdk-mobile-client:2.6.+@aar') { transitive = true }
+
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
 
     // speedometer

@@ -79,6 +79,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
     public static BluetoothDevice connectedDevice;
 
     public static String connectedDeviceName;
+    public static String connectedDeviceAddress;
 
     public boolean devMode;
     public Menu menuBar;
@@ -251,6 +252,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         Log.d(TAG, "Attempting to connect to: " + deviceName);
         connectedDeviceName = deviceName;
         connectedDevice = device;
+        connectedDeviceAddress = device.getAddress();
         mService.connectDevice(device);
         //once the device is connected, display the name in the device tab fragment
         mGasDeviceTabFragment.displayDeviceName(deviceName);
@@ -276,7 +278,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
     public void showDeviceID(){
         AlertDialog.Builder alert = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AlertDialogCustom));
         if(connectedDevice != null){
-            alert.setMessage(getString(R.string.show_device_id, connectedDevice.getAddress()));
+            alert.setMessage(getString(R.string.show_device_id, connectedDeviceAddress));
         } else {
             alert.setMessage(getString(R.string.show_device_id, "No device connected"));
         }
@@ -525,25 +527,30 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
 
     public void showGasSensorData(GasSensorData datum, Date date){
         //format a text string to show on the UI and save to a log file
-        DateFormat dfrmt = new SimpleDateFormat("HH:mm:ss:SSS");
-        String dateString = (date != null) ? dfrmt.format(date) : "no date available";
-        //make ture temp/humid/pressure values are not null and get their values
+        String dateString = String.valueOf(date.getTime());
+        //make sure temp/humid/pressure values are not null and get their values
         String temp = (tempHumidPressure != null) ? String.valueOf(tempHumidPressure.getTemp()) : "null";
         String humid = (tempHumidPressure != null) ? String.valueOf(tempHumidPressure.getHumid()) : "null";
         String pres = (tempHumidPressure != null) ? String.valueOf(tempHumidPressure.getPres()) : "null";
         //build the string that will be saved, add commas for CSV format
+        StringBuilder message = new StringBuilder(dateString
+                + ", " + temp
+                + ", " + humid
+                + ", " + pres);
+        int gasSensorNum = 0;
         for(GasSensorDataItem item : datum.getSensorDataList()){
-            String message = dateString
-                    + ", " + item.getGasSensor()
-                    + ", " + item.getGas_ppm()
-                    + ", " + item.getFrequency()
-                    + ", " + item.getZ_real()
-                    + ", " + item.getZ_imaginary()
-                    + ", " + temp
-                    + ", " + humid
-                    + ", " + pres;
-            mLoggingTabFragment.addItem(message);
+            if(gasSensorNum != item.getGasSensor()){
+                gasSensorNum = item.getGasSensor();
+                message
+                        .append(", ").append(item.getGasSensor());
+            }
+            message
+                    .append(", ").append(item.getFrequency())
+                    .append(", ").append(item.getZ_real())
+                    .append(", ").append(item.getZ_imaginary())
+                    .append(", ").append(item.getGas_ppm());
         }
+        mLoggingTabFragment.addItem(message.toString(), datum);
 
         //just use the first item in the list for now to graph
         //eventually will want to be able to dynamically chose which sensor is graphed

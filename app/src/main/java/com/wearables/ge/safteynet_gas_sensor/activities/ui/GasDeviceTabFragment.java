@@ -25,7 +25,6 @@ public class GasDeviceTabFragment extends Fragment {
 
     public static final String TAB_NAME = "Device";
 
-    private TextView sampleRateView = null;
     private TextView logThresholdView = null;
     private TextView deviceName = null;
 

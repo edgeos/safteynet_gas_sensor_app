@@ -29,6 +29,8 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.wearables.ge.safteynet_gas_sensor.R;
 import com.wearables.ge.safteynet_gas_sensor.activities.main.MainTabbedActivity;
+import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
+import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorDataItem;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,6 +39,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -102,14 +105,6 @@ public class LoggingTabFragment extends Fragment {
     public void showFileText(){
         LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
 
-        //show the first line to indicate the order that data is displayed
-        String firstLine = "Date, Gas Sensor Number, PPM, Frequency, Z', Z'', Temperature, Humidity, Pressure";
-        //add it to the list if it's not there
-        if(lines.isEmpty() || !lines.get(0).equals(firstLine)){
-            lines.add(0, firstLine);
-            Log.d(TAG, "First Line added");
-        }
-
         //loop through the list of lines and add each one to the UI
         for(String line : lines){
             TextView textView = new TextView(rootView.getContext());
@@ -119,7 +114,8 @@ public class LoggingTabFragment extends Fragment {
         }
     }
 
-    public void addItem(String item){
+    public StringBuilder firstLine = new StringBuilder("TimeStamp, Temp, Humidity, Pressure");
+    public void addItem(String item, GasSensorData data){
         //add a new item to the list
         lines.add(item);
         //if appropriate, add to the UI as well
@@ -129,6 +125,22 @@ public class LoggingTabFragment extends Fragment {
             textView.setText(item);
             textView.setGravity(Gravity.START);
             logEventsList.addView(textView);
+            if(!lines.get(0).equals(firstLine.toString())){
+                int sensorNum = 0;
+                for(GasSensorDataItem obj : data.getSensorDataList()){
+                    if(sensorNum != obj.getGasSensor()){
+                        sensorNum = obj.getGasSensor();
+                        firstLine.append(", Gas Sensor ").append(sensorNum);
+                    }
+                    firstLine.append(", Frequency, Z', Z'', Gas PPM");
+                }
+                lines.add(0, firstLine.toString());
+                TextView textView2 = new TextView(rootView.getContext());
+                textView2.setText(firstLine);
+                textView2.setGravity(Gravity.START);
+                logEventsList.addView(textView2, 0);
+                Log.d(TAG, "First Line added");
+            }
         }
     }
 
@@ -176,7 +188,7 @@ public class LoggingTabFragment extends Fragment {
         try {
             FileWriter writer = new FileWriter(file);
             //head the file with some device info
-            String headerLine = "Device: " + MainTabbedActivity.connectedDevice.getAddress() + " Name: " + MainTabbedActivity.connectedDeviceName + System.lineSeparator();
+            String headerLine = "Device: " + MainTabbedActivity.connectedDeviceAddress + " Name: " + MainTabbedActivity.connectedDeviceName + System.lineSeparator();
             writer.append(headerLine);
             for(String line : lines){
                 writer.append(line);
@@ -238,7 +250,6 @@ public class LoggingTabFragment extends Fragment {
                 LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
                 logEventsList.removeAllViews();
                 while(line != null){
-                    //Log.d(TAG, "Line read: " + line);
                     TextView textView = new TextView(rootView.getContext());
                     textView.setText(line);
                     textView.setGravity(Gravity.START);

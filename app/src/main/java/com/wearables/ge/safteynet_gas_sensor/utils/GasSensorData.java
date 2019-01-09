@@ -4,6 +4,8 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -85,8 +87,18 @@ public class GasSensorData {
                 GasSensorDataItem sensorData = new GasSensorDataItem(gasSensor, gas_ppm, frequency, z_real, z_imaginary);
                 sensorDataList.add(sensorData);
             }
+
+            Collections.sort(sensorDataList, new CustomComparator());
+
         } else {
             Log.d(TAG, "Unexpected Gas data value size: " + hexSplit.size());
+        }
+    }
+
+    public class CustomComparator implements Comparator<GasSensorDataItem>{
+        @Override
+        public int compare(GasSensorDataItem o1, GasSensorDataItem o2){
+            return o1.getGasSensor() - o2.getGasSensor();
         }
     }
 
