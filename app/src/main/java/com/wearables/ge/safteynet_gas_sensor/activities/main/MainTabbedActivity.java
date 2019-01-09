@@ -555,7 +555,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         //just use the first item in the list for now to graph
         //eventually will want to be able to dynamically chose which sensor is graphed
         GasSensorDataItem data = datum.getSensorDataList().get(0);
-        mGasHistoryTabFragment.updateGasGraphs(data);
+        mGasHistoryTabFragment.updateGasGraphs(datum);
         if(mGasDeviceTabFragment.activeSensor != data.getGasSensor()){
             mGasDeviceTabFragment.updateActiveGasSensor(data.getGasSensor());
         }

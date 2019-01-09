@@ -2,6 +2,8 @@ package com.wearables.ge.safteynet_gas_sensor.utils;
 
 import android.util.Log;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -39,9 +41,12 @@ public class TempHumidPressure {
             int humidRaw = Integer.parseInt(humidString, 16);
             int presRaw = Integer.parseInt(pressureString, 16);
 
-            this.temp = (tempRaw * 0.01);
-            this.humid = (humidRaw / 1024);
-            this.pres = (presRaw / 256);
+            double tempUnrounded = (tempRaw * 0.01);
+            double humidUnrounded = (humidRaw / 1024);
+            double pressureUnrounded = (presRaw / 256);
+            this.temp = new BigDecimal(tempUnrounded).setScale(2, RoundingMode.HALF_UP).doubleValue();
+            this.humid = new BigDecimal(humidUnrounded).setScale(2, RoundingMode.HALF_UP).doubleValue();
+            this.pres = new BigDecimal(pressureUnrounded).setScale(2, RoundingMode.HALF_UP).doubleValue();
             this.date = Calendar.getInstance().getTimeInMillis();
             Log.d(TAG, "temp: " + tempString + " humid: " + humidString + " pressure: "+ pressureString);
         } else {

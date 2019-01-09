@@ -125,6 +125,8 @@ public class LoggingTabFragment extends Fragment {
             textView.setText(item);
             textView.setGravity(Gravity.START);
             logEventsList.addView(textView);
+
+            //add the header line to the file based on the incoming data
             if(!lines.get(0).equals(firstLine.toString())){
                 int sensorNum = 0;
                 for(GasSensorDataItem obj : data.getSensorDataList()){

@@ -24,11 +24,14 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.wearables.ge.safteynet_gas_sensor.R;
+import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorDataItem;
 import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class GasHistoryTabFragment extends Fragment {
     private static final String TAG = "GasHistoryTabFragment";
@@ -335,16 +338,22 @@ public class GasHistoryTabFragment extends Fragment {
 
     float i;
     //public List<GasSensorData> gasSensorDataList = new ArrayList<>();
-    public void updateGasGraphs(GasSensorDataItem data){
-        //gasSensorDataList.add(data);
-        //i = gasSensorDataList.size();
+    public void updateGasGraphs(GasSensorData datum){
+        //we want to graph all the data at once
+        GasSensorDataItem data = datum.getSensorDataList().get(0);
+        List<GasSensorDataItem> sensorData = new ArrayList<>();
+        for(GasSensorDataItem obj : datum.getSensorDataList()){
+            if(obj.getGasSensor() == 1){
+                sensorData.add(obj);
+            }
+        }
+
         i++;
         if(gasGraph1 != null ){
             LineData data1 = gasGraph1.getData();
             if (data1 != null) {
 
                 ILineDataSet set = data1.getDataSetByIndex(0);
-                // set.addEntry(...); // can be called as well
 
                 if (set == null) {
                     set = createSet();
