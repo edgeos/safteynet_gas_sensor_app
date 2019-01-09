@@ -47,6 +47,7 @@ public class GasDeviceTabFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_tab_gas_device, container, false);
 
+        //set the frequency slider bar, this does not do anything yet
         SeekBar frequencyBar = rootView.findViewById(R.id.frequency_bar);
 
         TextView frequencyView = rootView.findViewById(R.id.frequency_bar_text);
@@ -92,7 +93,9 @@ public class GasDeviceTabFragment extends Fragment {
             }
         });
 
+        //initialize the gas sensor selector dropdown
         Spinner gasSensorDropdown = rootView.findViewById(R.id.gas_sensor_dropdown);
+        //use a configurable number of gas sensors
         int numSensors = 4;
         sensorList = new ArrayList<>();
         for(int i = 1; i < numSensors + 1; i++){
@@ -100,16 +103,20 @@ public class GasDeviceTabFragment extends Fragment {
             sensorList.add(itemName);
         }
 
+        //show which gas sensor is currently active
+        //this may change or be removed since now all gas sensors send data at once
         TextView activeGasSensorView = rootView.findViewById(R.id.active_gas_sensor);
         if(activeGasSensorView != null && activeSensor != 0){
             activeGasSensorView.setText(getString(R.string.active_gas_sensor, String.valueOf(activeSensor)));
         }
 
+        //add the gas sensor selection dropdown with the items in the list from above
         spinnerArrayAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.spinner_item, sensorList);
         spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
         gasSensorDropdown.setAdapter(spinnerArrayAdapter);
         gasSensorDropdown.setOnItemSelectedListener(new GasDeviceTabFragment.CustomOnItemSelectedListener());
 
+        //add the threshold slider bar
         logThresholdBar = rootView.findViewById(R.id.logThresholdBar);
         logThresholdView = rootView.findViewById(R.id.logThresholdView);
         logThresholdView.setText(getString(R.string.alarm_threshold, logThresholdBar.getProgress()));
@@ -238,6 +245,7 @@ public class GasDeviceTabFragment extends Fragment {
         }
     }
 
+    //this is the item selector listener for the gas sensor dropdown
     public class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {

@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -150,16 +151,19 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
     @Override
     public void onResume(){
         super.onResume();
-
+        //when this activity is resumed, rebind the bluetooth service
         Intent intent = new Intent(this, BluetoothService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         mBound = true;
+        //and re-register the broadcast receiver
         registerReceiver(mGattUpdateReceiver, createIntentFilter());
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
+        //when the activity is destroyed, unbind the bluetooth service
+        //and unregister the broadcast receiver
         if(mConnection != null){
             unbindService(mConnection);
             unregisterReceiver(mGattUpdateReceiver);
@@ -204,18 +208,28 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         }
     }
 
+    /**
+     * Opens a dialog for the user to enter a new name for the connected device.
+     * Will call the writeToVoltageAlarmConfigChar method in the bluetooth service with a "rename" message type.
+     */
     public void renameDevice(){
+        //create alert dialog with custom alert style
         AlertDialog.Builder alert = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AlertDialogCustom));
 
+        //If there is no device connected, don't allow the user to enter a name
         if(connectedDevice != null){
             alert.setMessage(R.string.rename_device_modal_message);
 
+            //create edit text dialog
             final EditText input = new EditText(this);
+            //set the max length of the field to 16 characters, since the board can only take a rename up to a length of 16
+            input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(16)});
             input.setInputType(InputType.TYPE_CLASS_TEXT);
             input.setTextColor(Color.WHITE);
 
             alert.setView(input);
 
+            //the gas sensor does not have rename functionality right now so do nothing upon submit
             alert.setPositiveButton(R.string.dialog_accept_button_message, (dialog, whichButton) -> {
                 //mService.writeToVoltageAlarmConfigChar(GattAttributes.MESSAGE_TYPE_RENAME, input.getText().toString());
             });
@@ -228,24 +242,37 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         alert.show();
     }
 
+    /**
+     * Connect the selected bluetooth device and set the global variables for device name and connected device
+     * @param device
+     * @param deviceName
+     */
     public void connectDevice(BluetoothDevice device, String deviceName){
         Log.d(TAG, "Attempting to connect to: " + deviceName);
         connectedDeviceName = deviceName;
         connectedDevice = device;
         mService.connectDevice(device);
+        //once the device is connected, display the name in the device tab fragment
         mGasDeviceTabFragment.displayDeviceName(deviceName);
     }
 
+    /**
+     * Disconnect the connected bluetooth device
+     */
     public void disconnectDevice(){
         mService.disconnectGattServer();
         connectedDevice = null;
         connectedDeviceName = null;
+        //negate the switch for that device on the pairing page if it is visible
         Switch button = findViewById(R.id.connected_button);
         if(button != null){
             button.setChecked(false);
         }
     }
 
+    /**
+     * Show the MAC address of the connected device. If no device is connected, alert that to the user.
+     */
     public void showDeviceID(){
         AlertDialog.Builder alert = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AlertDialogCustom));
         if(connectedDevice != null){
@@ -256,6 +283,12 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         alert.show();
     }
 
+    /**
+     * This method will switch modes from Dev(engineering) mode to normal mode and chang ethe menu item accordingly.
+     * First, check if a device is connected and alert the user if no device is connected.
+     * Write to the VoltageAlarmConfig characteristic with a "mode" write type to change the mode type.
+     * Then change the menu item to the other option.
+     */
     public void switchModes() {
         if(connectedDevice != null){
             MenuItem devModeItem = menuBar.findItem(R.id.dev_mode);
@@ -275,7 +308,9 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         }
     }
 
-    //connection callback for bluetooth service
+    /**
+     * Connection callback method for the bluetooth service
+     */
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -298,7 +333,10 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         }
     };
 
-    //create custom intent filter for broadcasting messages from the bluetooth service to this activity
+    /**
+     * Create custom intent filter for broadcasting messages from the bluetooth service to this activity
+     * @return IntentFilter object
+     */
     private static IntentFilter createIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothService.ACTION_GATT_SERVICES_DISCOVERED);
@@ -308,7 +346,10 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         return intentFilter;
     }
 
-    //this method handles broadcasts sent from the bluetooth service
+    /**
+     * Broadcast receiver for getting messages back from the bluetooth service.
+     * When a message is received, the message type is determined and appropriate action is taken.
+     */
     public final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -407,15 +448,27 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         }
     }
 
+    /**
+     * Worker method for reading bluetooth data sent from a characteristic.
+     * This will read any data from any characteristic and parse it to the correct format.
+     * @param intent
+     */
     public void readAvailableData(Intent intent){
+        //get the UUID of the incoming data
         UUID extraUuid = UUID.fromString(intent.getStringExtra(BluetoothService.EXTRA_UUID));
+        //grab the raw data as a byte array
         byte[] extraData = intent.getByteArrayExtra(BluetoothService.EXTRA_DATA);
+        //sometimes the data is a single integer and we don't need to parse the byte array
         int extraIntData = intent.getIntExtra(BluetoothService.EXTRA_INT_DATA, 0);
 
+        //stop here if there is no message to read
         if(extraData == null){
             Log.d(TAG, "No message parsed on characteristic.");
             return;
         }
+
+        //here attempt to convert the byte array to a string
+        //the incoming data from the voltage bang should be hexadecimal strings
         String value = null;
         try {
             final StringBuilder stringBuilder = new StringBuilder(extraData.length);
@@ -428,7 +481,9 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
             Log.e(TAG, "Unable to convert message bytes to string" + e.getMessage());
         }
 
+        //if we were able to get a string value from the byte array message, parse it based on the UUID with it
         if(value != null){
+            //for battery level, just show the battery level on the UI
             if(extraUuid.equals(GattAttributes.BATT_LEVEL_CHAR_UUID)){
                 if(mGasDeviceTabFragment.isVisible()){
                     mGasDeviceTabFragment.updateBatteryLevel(extraIntData);
@@ -436,6 +491,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                 Log.d(TAG, "Battery level: " + extraIntData + "%");
             } else if(extraUuid.equals(GattAttributes.GAS_SENSOR_DATA_CHARACTERISTIC_UUID)){
                 Log.d(TAG, "GAS_SENSOR_DATA value: " + value);
+                //Gas sensor data, create a GasSensorData object out of the message
                 GasSensorData data = new GasSensorData(value);
                 showGasSensorData(data, data.getDate());
 
@@ -468,13 +524,17 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
     }
 
     public void showGasSensorData(GasSensorData datum, Date date){
+        //format a text string to show on the UI and save to a log file
         DateFormat dfrmt = new SimpleDateFormat("HH:mm:ss:SSS");
         String dateString = (date != null) ? dfrmt.format(date) : "no date available";
+        //make ture temp/humid/pressure values are not null and get their values
         String temp = (tempHumidPressure != null) ? String.valueOf(tempHumidPressure.getTemp()) : "null";
         String humid = (tempHumidPressure != null) ? String.valueOf(tempHumidPressure.getHumid()) : "null";
         String pres = (tempHumidPressure != null) ? String.valueOf(tempHumidPressure.getPres()) : "null";
+        //build the string that will be saved, add commas for CSV format
         for(GasSensorDataItem item : datum.getSensorDataList()){
-            String message = dateString + ", " + item.getGasSensor()
+            String message = dateString
+                    + ", " + item.getGasSensor()
                     + ", " + item.getGas_ppm()
                     + ", " + item.getFrequency()
                     + ", " + item.getZ_real()
@@ -485,6 +545,8 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
             mLoggingTabFragment.addItem(message);
         }
 
+        //just use the first item in the list for now to graph
+        //eventually will want to be able to dynamically chose which sensor is graphed
         GasSensorDataItem data = datum.getSensorDataList().get(0);
         mGasHistoryTabFragment.updateGasGraphs(data);
         if(mGasDeviceTabFragment.activeSensor != data.getGasSensor()){

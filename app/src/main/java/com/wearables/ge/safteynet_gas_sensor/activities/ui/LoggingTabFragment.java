@@ -102,12 +102,15 @@ public class LoggingTabFragment extends Fragment {
     public void showFileText(){
         LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
 
+        //show the first line to indicate the order that data is displayed
         String firstLine = "Date, Gas Sensor Number, PPM, Frequency, Z', Z'', Temperature, Humidity, Pressure";
+        //add it to the list if it's not there
         if(lines.isEmpty() || !lines.get(0).equals(firstLine)){
             lines.add(0, firstLine);
             Log.d(TAG, "First Line added");
         }
 
+        //loop through the list of lines and add each one to the UI
         for(String line : lines){
             TextView textView = new TextView(rootView.getContext());
             textView.setText(line);
@@ -117,7 +120,9 @@ public class LoggingTabFragment extends Fragment {
     }
 
     public void addItem(String item){
+        //add a new item to the list
         lines.add(item);
+        //if appropriate, add to the UI as well
         if(rootView != null && !viewingOldFile){
             LinearLayout logEventsList = rootView.findViewById(R.id.logEventList);
             TextView textView = new TextView(rootView.getContext());
