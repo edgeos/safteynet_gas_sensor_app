@@ -38,9 +38,11 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class LoggingTabFragment extends Fragment {
@@ -165,8 +167,12 @@ public class LoggingTabFragment extends Fragment {
         }
 
         //use time epoch ms for filename
-        Long time = Calendar.getInstance().getTimeInMillis();
-        savedFileName = String.valueOf(time) + "_gas_sensor_log.csv";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MMdd_HHmmss");
+        Date d = new Date();
+        String date = (dateFormat.format(d));
+        List<String> macAdrsList = Arrays.asList(MainTabbedActivity.connectedDeviceAddress.split("\\s*:\\s*"));
+        savedFileName = "Sensor_" + macAdrsList.get(macAdrsList.size() - 2) + macAdrsList.get(macAdrsList.size() - 1) + "_" + date + ".txt";
+        Log.d(TAG, "Filename: " + savedFileName);
 
         //log path for debugging
         Log.d(TAG, "Files Dir: " + path.getPath());
@@ -190,8 +196,8 @@ public class LoggingTabFragment extends Fragment {
         try {
             FileWriter writer = new FileWriter(file);
             //head the file with some device info
-            String headerLine = "Device: " + MainTabbedActivity.connectedDeviceAddress + " Name: " + MainTabbedActivity.connectedDeviceName + System.lineSeparator();
-            writer.append(headerLine);
+            //String headerLine = "Device: " + MainTabbedActivity.connectedDeviceAddress + " Name: " + MainTabbedActivity.connectedDeviceName + System.lineSeparator();
+            //writer.append(headerLine);
             for(String line : lines){
                 writer.append(line);
                 writer.append(System.lineSeparator());

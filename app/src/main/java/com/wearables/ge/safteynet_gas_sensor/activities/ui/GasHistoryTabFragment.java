@@ -4,12 +4,16 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -30,8 +34,10 @@ import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 public class GasHistoryTabFragment extends Fragment {
     private static final String TAG = "GasHistoryTabFragment";
@@ -49,6 +55,10 @@ public class GasHistoryTabFragment extends Fragment {
     LineChart gasGraph2;
     LineChart gasPpmGraph;
 
+    ArrayAdapter<String> spinnerArrayAdapter = null;
+
+    int selectedGasSensor = 1;
+
     View rootView;
 
     @Override
@@ -59,7 +69,34 @@ public class GasHistoryTabFragment extends Fragment {
         initializeGasSensorGraphs();
         initializeTempHumidPressureGraphs();
         setRetainInstance(true);
+
+        //add the gas sensor selection dropdown with the items in the list from above
+        List<String> sensorList = Arrays.asList("Sensor 1", "Sensor 2", "Sensor 3", "Sensor 4");
+        Spinner gasSensorDropdown = rootView.findViewById(R.id.gas_sensor_dropdown);
+        spinnerArrayAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.spinner_item, sensorList);
+        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+        gasSensorDropdown.setAdapter(spinnerArrayAdapter);
+        gasSensorDropdown.setOnItemSelectedListener(new CustomOnItemSelectedListener());
+
         return rootView;
+
+    }
+
+    public class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
+            selectedGasSensor = pos + 1;
+            LineData data1 = gasGraph1.getData();
+            if (data1 != null) {
+                data1.clearValues();
+                data1.notifyDataChanged();
+                gasGraph1.notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+        }
 
     }
 
@@ -152,7 +189,9 @@ public class GasHistoryTabFragment extends Fragment {
         leftAxis.setDrawGridLines(true);
 
         YAxis rightAxis = gasGraph1.getAxisRight();
-        rightAxis.setEnabled(false);
+        leftAxis.setTypeface(Typeface.SANS_SERIF);
+        leftAxis.setTextColor(Color.BLACK);
+        rightAxis.setEnabled(true);
 
         //z double prime graph
         gasGraph2 = rootView.findViewById(R.id.gas_sensor_graph_2);
@@ -222,17 +261,6 @@ public class GasHistoryTabFragment extends Fragment {
             return (dateFormat.format(d));
         }
     }
-
-    /*public class ZPrimeDateValueFormatter implements IAxisValueFormatter {
-        @Override
-        public String getFormattedValue(float value, AxisBase axis){
-            Log.d(TAG, "ZPrimeDateValueFormatter: x value: " + (int) value + " i value: " + i);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-            Date d = gasSensorDataList.get((int) i - 1).getDate();
-            //Date d = new Date();
-            return (dateFormat.format(d));
-        }
-    }*/
 
     public void initializeTempHumidPressureGraphs(){
         LinearLayout expandableLayout3 = rootView.findViewById(R.id.collapsibleContainer3);
@@ -343,27 +371,44 @@ public class GasHistoryTabFragment extends Fragment {
         GasSensorDataItem data = datum.getSensorDataList().get(0);
         List<GasSensorDataItem> sensorData = new ArrayList<>();
         for(GasSensorDataItem obj : datum.getSensorDataList()){
-            if(obj.getGasSensor() == 1){
+            if(obj.getGasSensor() == selectedGasSensor){
                 sensorData.add(obj);
             }
         }
 
         i++;
+        //Random rand = new Random();
         if(gasGraph1 != null ){
             LineData data1 = gasGraph1.getData();
             if (data1 != null) {
 
-                ILineDataSet set = data1.getDataSetByIndex(0);
+                int index = 0;
+                for(GasSensorDataItem obj : sensorData){
+                    ILineDataSet set = data1.getDataSetByIndex(index);
+                    int yValue = (int) obj.getZ_real();
+                    if (set == null) {
+                        String label = obj.getFrequency() + "kHz";
+                        set = createSet(label);
+                        //((LineDataSet) set).setColor(Color.rgb(rand.nextInt(), rand.nextInt(), rand.nextInt()));
+                        set.addEntry(new Entry(i, yValue));
+                        data1.addDataSet(set);
+                    } else {
+                        set.addEntry(new Entry(i, yValue));
+                    }
+                    index++;
+                    Log.d(TAG, "Z' Graphed: " + yValue + " sensor: " + obj.getGasSensor() + " frequency: " + obj.getFrequency());
+                }
+                /*ILineDataSet set = data1.getDataSetByIndex(0);
 
                 if (set == null) {
                     set = createSet();
                     data1.addDataSet(set);
                 }
 
-                data1.addEntry(new Entry(i, data.getZ_real()), 0);
+                data1.addEntry(new Entry(i, data.getZ_real()), 0);*/
                 data1.notifyDataChanged();
 
-                // let the chart know it's data has changed
+                // let the chart know its data has changed
                 gasGraph1.notifyDataSetChanged();
 
                 // limit the number of visible entries
@@ -381,7 +426,7 @@ public class GasHistoryTabFragment extends Fragment {
                 ILineDataSet set = data2.getDataSetByIndex(0);
 
                 if (set == null) {
-                    set = createSet();
+                    set = createSet("Z''");
                     data2.addDataSet(set);
                 }
 
@@ -401,7 +446,7 @@ public class GasHistoryTabFragment extends Fragment {
                 ILineDataSet set = data3.getDataSetByIndex(0);
 
                 if (set == null) {
-                    set = createSet();
+                    set = createSet("PPM");
                     data3.addDataSet(set);
                 }
 
@@ -426,7 +471,7 @@ public class GasHistoryTabFragment extends Fragment {
                 ILineDataSet set = data1.getDataSetByIndex(0);
 
                 if (set == null) {
-                    set = createSet();
+                    set = createSet("temperature");
                     data1.addDataSet(set);
                 }
 
@@ -446,7 +491,7 @@ public class GasHistoryTabFragment extends Fragment {
                 ILineDataSet set = data2.getDataSetByIndex(0);
 
                 if (set == null) {
-                    set = createSet();
+                    set = createSet("humidity");
                     data2.addDataSet(set);
                 }
 
@@ -466,7 +511,7 @@ public class GasHistoryTabFragment extends Fragment {
                 ILineDataSet set = data3.getDataSetByIndex(0);
 
                 if (set == null) {
-                    set = createSet();
+                    set = createSet("pressure");
                     data3.addDataSet(set);
                 }
 
@@ -481,8 +526,9 @@ public class GasHistoryTabFragment extends Fragment {
         }
     }
 
-    private LineDataSet createSet() {
-        LineDataSet set = new LineDataSet(null, "Dynamic Data");
+
+    private LineDataSet createSet(String label) {
+        LineDataSet set = new LineDataSet(null, label);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setColor(ColorTemplate.getHoloBlue());
         set.setCircleColor(Color.WHITE);

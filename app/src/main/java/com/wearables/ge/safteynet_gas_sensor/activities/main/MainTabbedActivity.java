@@ -285,6 +285,13 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         alert.show();
     }
 
+    public void handleUnexpectedDisconnect(){
+        Log.d(TAG, "handleUnexpectedDisconnect");
+        AlertDialog.Builder alert = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AlertDialogCustom));
+        alert.setMessage("Unexpected Disconnect");
+        alert.show();
+    }
+
     /**
      * This method will switch modes from Dev(engineering) mode to normal mode and chang ethe menu item accordingly.
      * First, check if a device is connected and alert the user if no device is connected.
@@ -370,6 +377,9 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                         if (extraType == BLEQueue.ITEM_TYPE_READ) {
                             readAvailableData(intent);
                         }
+                        break;
+                    case BluetoothService.UNEXPECTED_DISCONNECT:
+                        handleUnexpectedDisconnect();
                         break;
                 }
             }

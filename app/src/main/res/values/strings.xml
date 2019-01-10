@@ -60,11 +60,7 @@
 
     <string name="enable_sensors_dropdown">Enable Sensor</string>
     <string name="gas_sensor_dropdown_message">Active Sensor: </string>
-    <string-array name="gas_sensor_options">
-        <item>Gas Sensor 1</item>
-        <item>Gas Sensor 2</item>
-        <item>Gas Sensor 3</item>
-        <item>Gas Sensor 4</item>
-    </string-array>
+
+    <string name="select_frequency_dropdown">Select Frequency</string>
 
 </resources>

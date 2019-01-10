@@ -42,6 +42,8 @@ public class BluetoothService extends Service {
     private BLEQueue bleQueue = new BLEQueue();
     private boolean bleQueueIsFree = true;
 
+    public final static String UNEXPECTED_DISCONNECT =                  "com.wearables.ge.UNEXPECTED_DISCONNECT";
+
     public final static String ACTION_GATT_SERVICES_DISCOVERED =        "com.wearables.ge.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_GATT_GAS_SENSOR_DISCOVERED =      "com.wearables.ge.ACTION_GATT_GAS_SENSOR_DISCOVERED";
     public final static String ACTION_GATT_VOLTAGE_BAND_DISCOVERED =    "com.wearables.ge.ACTION_GATT_VOLTAGE_BAND_DISCOVERED";
@@ -159,6 +161,11 @@ public class BluetoothService extends Service {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
+            Log.d(TAG, "Connection state changed: "  + status);
+            if(status == 8){
+                Log.d(TAG, "Unexpected disconnect");
+                broadcastUpdate(UNEXPECTED_DISCONNECT);
+            }
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 //if the connection is anything but successful, stop here and disconnect
                 disconnectGattServer();
@@ -185,6 +192,7 @@ public class BluetoothService extends Service {
                     gatt.discoverServices();
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                Log.d(TAG, "Device Disconnected");
                 disconnectGattServer();
             }
         }
