@@ -102,7 +102,6 @@ public class BluetoothService extends Service {
      */
     public void connectDevice(BluetoothDevice device) {
         BluetoothService.GattClientCallback gattClientCallback = new BluetoothService.GattClientCallback();
-        device.fetchUuidsWithSdp();
         connectedGatt = device.connectGatt(this, false, gattClientCallback);
         Log.d(TAG, "Device " + deviceName + " connected");
     }
@@ -115,33 +114,12 @@ public class BluetoothService extends Service {
         //disconnect
         Log.d(TAG, "Attempting to disconnect " + deviceName);
         if (connectedGatt != null) {
-            Boolean refreshed = refreshDeviceCache(connectedGatt);
-            Log.d(TAG, "Device cache refreshed: " + refreshed);
             connectedGatt.disconnect();
             connectedGatt.close();
             connectedGatt = null;
         } else {
             Log.d(TAG, "connectedGatt was null");
         }
-    }
-
-    /**
-     * This method uses reflection (spooky) to reset the device cache on the mobile device
-     * This is useful to refresh any cached data that may have changed since the BLE device restarted
-     * For instance, a device rename may work, but the old name will be associated with the MAC address in the cache so the old one will be what is seen
-     * As of now, there is no more elegant solution to this issue that reflectively clearing the cache
-     * @param gatt
-     * @return
-     */
-    private boolean refreshDeviceCache(BluetoothGatt gatt){
-        try {
-            Method localMethod = gatt.getClass().getMethod("refresh", new Class[0]);
-            return (Boolean) localMethod.invoke(gatt, new Object[0]);
-        }
-        catch (Exception localException) {
-            Log.e(TAG, "An exception occured while refreshing device");
-        }
-        return false;
     }
 
     /**
@@ -179,9 +157,6 @@ public class BluetoothService extends Service {
                 //set global variables for connected device and device name
                 if(gatt != null){
                     connectedGatt = gatt;
-                    //refresh the device cache here
-                    Boolean refreshed = refreshDeviceCache(connectedGatt);
-                    Log.d(TAG, "Device cache refreshed: " + refreshed);
                     //set the variable for device name, use the MAC address if no name is available
                     deviceName = gatt.getDevice().getName() == null ? gatt.getDevice().getAddress() : gatt.getDevice().getName();
                     Log.d(TAG, "Device connected: " + deviceName);
@@ -277,7 +252,6 @@ public class BluetoothService extends Service {
             bleQueueIsFree = true;
             processQueue();
         }
-
     }
 
     /**

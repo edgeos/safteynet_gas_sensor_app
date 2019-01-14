@@ -35,6 +35,7 @@ import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -365,16 +366,56 @@ public class GasHistoryTabFragment extends Fragment {
     }
 
     float i;
-    //public List<GasSensorData> gasSensorDataList = new ArrayList<>();
+    int sensor1SelectedFreq = 0;
+    int sensor2SelectedFreq = 0;
+    int sensor3SelectedFreq = 0;
+    int sensor4SelectedFreq = 0;
     public void updateGasGraphs(GasSensorData datum){
         //we want to graph all the data at once
         GasSensorDataItem data = datum.getSensorDataList().get(0);
+
+        List<Integer> sensor1frequencies = new ArrayList<>();
+        List<Integer> sensor2frequencies = new ArrayList<>();
+        List<Integer> sensor3frequencies = new ArrayList<>();
+        List<Integer> sensor4frequencies = new ArrayList<>();
+
+        List<GasSensorDataItem> sensor1Data = new ArrayList<>();
+        List<GasSensorDataItem> sensor2Data = new ArrayList<>();
+        List<GasSensorDataItem> sensor3Data = new ArrayList<>();
+        List<GasSensorDataItem> sensor4Data = new ArrayList<>();
+
         List<GasSensorDataItem> sensorData = new ArrayList<>();
         for(GasSensorDataItem obj : datum.getSensorDataList()){
             if(obj.getGasSensor() == selectedGasSensor){
                 sensorData.add(obj);
             }
+            if(obj.getGasSensor() == 1){
+                if(!sensor1frequencies.contains(obj.getFrequency())){
+                    sensor1frequencies.add(obj.frequency);
+                }
+                sensor1Data.add(obj);
+            } else if(obj.getGasSensor() == 2){
+                if(!sensor2frequencies.contains(obj.getFrequency())){
+                    sensor2frequencies.add(obj.frequency);
+                }
+                sensor2Data.add(obj);
+            } else if(obj.getGasSensor() == 3){
+                if(!sensor3frequencies.contains(obj.getFrequency())){
+                    sensor3frequencies.add(obj.frequency);
+                }
+                sensor3Data.add(obj);
+            } else if(obj.getGasSensor() == 4){
+                if(!sensor4frequencies.contains(obj.getFrequency())){
+                    sensor4frequencies.add(obj.frequency);
+                }
+                sensor4Data.add(obj);
+            }
         }
+
+        Collections.sort(sensor1frequencies);
+        Collections.sort(sensor2frequencies);
+        Collections.sort(sensor3frequencies);
+        Collections.sort(sensor4frequencies);
 
         i++;
         //Random rand = new Random();
