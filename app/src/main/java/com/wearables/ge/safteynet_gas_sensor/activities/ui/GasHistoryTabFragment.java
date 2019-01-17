@@ -98,7 +98,7 @@ public class GasHistoryTabFragment extends Fragment {
 
     }
 
-    private void updateSensorFrequencyDropdowns(List<Integer> sensor1Freqs, List<Integer> sensor2Freqs, List<Integer> sensor3Freqs, List<Integer> sensor4Freqs){
+    private void updateSensorFrequencyDropdowns(List<String> sensor1Freqs, List<String> sensor2Freqs, List<String> sensor3Freqs, List<String> sensor4Freqs){
         Spinner sensor1FreqDropdown = rootView.findViewById(R.id.sensor_1_frequency_dropdown);
         ArrayAdapter sensor1ArrayAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.spinner_item, sensor1Freqs);
         sensor1ArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
@@ -213,8 +213,9 @@ public class GasHistoryTabFragment extends Fragment {
         leftAxis.setDrawGridLines(true);
 
         YAxis rightAxis = gasGraph1.getAxisRight();
-        leftAxis.setTypeface(Typeface.SANS_SERIF);
-        leftAxis.setTextColor(Color.BLACK);
+        rightAxis.setTypeface(Typeface.SANS_SERIF);
+        rightAxis.setTextColor(Color.BLACK);
+        rightAxis.setDrawGridLines(false);
         rightAxis.setEnabled(true);
 
         //z double prime graph
@@ -244,7 +245,10 @@ public class GasHistoryTabFragment extends Fragment {
         leftAxis2.setDrawGridLines(true);
 
         YAxis rightAxis2 = gasGraph2.getAxisRight();
-        rightAxis2.setEnabled(false);
+        rightAxis2.setTypeface(Typeface.SANS_SERIF);
+        rightAxis2.setTextColor(Color.BLACK);
+        rightAxis2.setDrawGridLines(false);
+        rightAxis2.setEnabled(true);
     }
 
     public class DateValueFormatter implements IAxisValueFormatter {
@@ -378,16 +382,13 @@ public class GasHistoryTabFragment extends Fragment {
     Boolean frequenciesSet = false;
 
     public void updateGasGraphs(GasSensorData datum){
+        //create a list of all frequencies for each sensor
         List<Integer> sensor1frequencies = new ArrayList<>();
         List<Integer> sensor2frequencies = new ArrayList<>();
         List<Integer> sensor3frequencies = new ArrayList<>();
         List<Integer> sensor4frequencies = new ArrayList<>();
 
-        GasSensorDataItem sensor1Data = null;
-        GasSensorDataItem sensor2Data = null;
-        GasSensorDataItem sensor3Data = null;
-        GasSensorDataItem sensor4Data = null;
-
+        //pull out the frequencies on each item and store them to lists
         for(GasSensorDataItem obj : datum.getSensorDataList()){
             if(obj.getGasSensor() == 1){
                 if(!sensor1frequencies.contains(obj.getFrequency())){
@@ -408,10 +409,17 @@ public class GasHistoryTabFragment extends Fragment {
             }
         }
 
+        //sort the lists
         Collections.sort(sensor1frequencies);
         Collections.sort(sensor2frequencies);
         Collections.sort(sensor3frequencies);
         Collections.sort(sensor4frequencies);
+
+        //now get the appropriate GasSensorDataItem for the selected frequency/data type
+        GasSensorDataItem sensor1Data = null;
+        GasSensorDataItem sensor2Data = null;
+        GasSensorDataItem sensor3Data = null;
+        GasSensorDataItem sensor4Data = null;
 
         for(GasSensorDataItem obj : datum.getSensorDataList()){
             if(obj.getGasSensor() == 1){
@@ -433,30 +441,54 @@ public class GasHistoryTabFragment extends Fragment {
             }
         }
 
+        //now, if we have the rootview and we haven't done this yet, set the frequency values for the dropdown selectors
         if(rootView != null && !frequenciesSet){
             this.sensor1frequencies = sensor1frequencies;
             this.sensor2frequencies = sensor2frequencies;
             this.sensor3frequencies = sensor3frequencies;
             this.sensor4frequencies = sensor4frequencies;
-            updateSensorFrequencyDropdowns(sensor1frequencies, sensor2frequencies, sensor3frequencies, sensor4frequencies);
+
+            //we want a list of strings so we can add the units to the end of each item
+            List<String> sensor1frequencyList = new ArrayList<>();
+            List<String> sensor2frequencyList = new ArrayList<>();
+            List<String> sensor3frequencyList = new ArrayList<>();
+            List<String> sensor4frequencyList = new ArrayList<>();
+
+            //create the lists with the added units
+            for(int freq : sensor1frequencies){
+                sensor1frequencyList.add(freq + " Khz");
+            }
+            for(int freq : sensor2frequencies){
+                sensor2frequencyList.add(freq + " Khz");
+            }
+            for(int freq : sensor3frequencies){
+                sensor3frequencyList.add(freq + " Khz");
+            }
+            for(int freq : sensor4frequencies){
+                sensor4frequencyList.add(freq + " Khz");
+            }
+
+            //update the dropdowns
+            updateSensorFrequencyDropdowns(sensor1frequencyList, sensor2frequencyList, sensor3frequencyList, sensor4frequencyList);
             frequenciesSet = true;
         }
 
         i++;
-        if(gasGraph1 != null ){
+        if(gasGraph1 != null){
+            //get all the line data on the chart
             LineData data1 = gasGraph1.getData();
             if (data1 != null) {
-
                 int index = 0;
                 if(sensor1Data != null){
+                    //sensor 1 data should be the first data set in the line data
                     ILineDataSet set = data1.getDataSetByIndex(index);
+                    //extract the proper y value from the data using the selected frequency and data type
                     int sensor1yValue = getYvalue(sensor1Data);
                     if (set == null) {
-                        String label = sensor1Data.getFrequency() + "kHz";
-                        set = createSet(label);
+                        set = createSet("Sensor 1");
                         ((LineDataSet) set).setColor(Color.RED);
-                        ((LineDataSet) set).setLineWidth(4);
-                        //set.setAxisDependency(YAxis.AxisDependency.LEFT);
+                        ((LineDataSet) set).setLineWidth(3);
+                        set.setAxisDependency(YAxis.AxisDependency.LEFT);
 
                         set.addEntry(new Entry(i, sensor1yValue));
                         data1.addDataSet(set);
@@ -470,11 +502,10 @@ public class GasHistoryTabFragment extends Fragment {
                     ILineDataSet set = data1.getDataSetByIndex(index);
                     int sensor2yValue = getYvalue(sensor2Data);
                     if (set == null) {
-                        String label = sensor2Data.getFrequency() + "kHz";
-                        set = createSet(label);
+                        set = createSet("Sensor 2");
                         ((LineDataSet) set).setColor(Color.BLUE);
                         ((LineDataSet) set).setLineWidth(2);
-                        //set.setAxisDependency(YAxis.AxisDependency.RIGHT);
+                        set.setAxisDependency(YAxis.AxisDependency.RIGHT);
 
                         set.addEntry(new Entry(i, sensor2yValue));
                         data1.addDataSet(set);
@@ -490,13 +521,12 @@ public class GasHistoryTabFragment extends Fragment {
 
                 // limit the number of visible entries
                 gasGraph1.setVisibleXRangeMaximum(40);
-                // chart.setVisibleYRange(30, AxisDependency.LEFT);
 
                 // move to the latest entry
                 gasGraph1.moveViewToX(data1.getEntryCount());
             }
         }
-        if(gasGraph2 != null ){
+        if(gasGraph2 != null){
             LineData data2 = gasGraph2.getData();
             if (data2 != null) {
 
@@ -505,11 +535,10 @@ public class GasHistoryTabFragment extends Fragment {
                     ILineDataSet set = data2.getDataSetByIndex(index);
                     int sensor3yValue = getYvalue(sensor3Data);
                     if (set == null) {
-                        String label = sensor3Data.getFrequency() + "kHz";
-                        set = createSet(label);
+                        set = createSet("Sensor 3");
                         ((LineDataSet) set).setColor(Color.RED);
-                        ((LineDataSet) set).setLineWidth(4);
-                        //set.setAxisDependency(YAxis.AxisDependency.LEFT);
+                        ((LineDataSet) set).setLineWidth(3);
+                        set.setAxisDependency(YAxis.AxisDependency.LEFT);
 
                         set.addEntry(new Entry(i, sensor3yValue));
                         data2.addDataSet(set);
@@ -523,11 +552,10 @@ public class GasHistoryTabFragment extends Fragment {
                     ILineDataSet set = data2.getDataSetByIndex(index);
                     int sensor4yValue = getYvalue(sensor4Data);
                     if (set == null) {
-                        String label = sensor4Data.getFrequency() + "kHz";
-                        set = createSet(label);
+                        set = createSet("Sensor 4");
                         ((LineDataSet) set).setColor(Color.BLUE);
                         ((LineDataSet) set).setLineWidth(2);
-                        //set.setAxisDependency(YAxis.AxisDependency.RIGHT);
+                        set.setAxisDependency(YAxis.AxisDependency.RIGHT);
 
                         set.addEntry(new Entry(i, sensor4yValue));
                         data2.addDataSet(set);
@@ -611,7 +639,6 @@ public class GasHistoryTabFragment extends Fragment {
         }
     }
 
-
     private LineDataSet createSet(String label) {
         LineDataSet set = new LineDataSet(null, label);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -676,10 +703,11 @@ public class GasHistoryTabFragment extends Fragment {
 
             /*LineData data = gasGraph1.getData();
             if (data != null) {
-                *//*ILineDataSet dataSet = data.getDataSetByIndex(0);
-                dataSet.clear();
-                data.notifyDataChanged();
-                gasGraph1.notifyDataSetChanged();*//*
+                //ILineDataSet dataSet = data.getDataSetByIndex(0);
+                //dataSet.clear();
+                //data.notifyDataChanged();
+                //gasGraph1.notifyDataSetChanged();
+
                 data.clearValues();
                 data.notifyDataChanged();
                 gasGraph1.notifyDataSetChanged();
