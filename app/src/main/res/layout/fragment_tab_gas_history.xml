@@ -44,18 +44,6 @@
                 android:textSize="16dp"
                 android:textStyle="bold" />
 
-            <Spinner
-                android:id="@+id/gas_sensor_dropdown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:prompt="@string/enable_sensors_dropdown" />
-
-            <Spinner
-                android:id="@+id/frequency_dropdown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:prompt="@string/select_frequency_dropdown" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -65,14 +53,58 @@
             android:animateLayoutChanges="true"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/gas_sensor_name_a1"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/graph1TitleBar"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:textStyle="bold"
-                android:text="@string/gas_sensor_graph_1_title"
-                />
+                android:animateLayoutChanges="true"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/gas_sensor_1_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:textStyle="bold"
+                    android:text="@string/gas_sensor_1_dropdown_title"
+                    />
+
+                <Spinner
+                    android:id="@id/sensor_1_frequency_dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/select_frequency_dropdown" />
+
+                <Spinner
+                    android:id="@+id/sensor_1_data_select_dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/gas_data_select"
+                    android:prompt="@string/select_data_dropdown" />
+
+                <TextView
+                    android:id="@+id/gas_sensor_2_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:textStyle="bold"
+                    android:text="@string/gas_sensor_2_dropdown_title"
+                    />
+
+                <Spinner
+                    android:id="@id/sensor_2_frequency_dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/select_frequency_dropdown" />
+
+                <Spinner
+                    android:id="@+id/sensor_2_data_select_dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/gas_data_select"
+                    android:prompt="@string/select_data_dropdown" />
+
+            </LinearLayout>
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/gas_sensor_graph_1"
@@ -80,14 +112,58 @@
                 android:layout_height="250dp"
                 android:layout_marginBottom="8dp"/>
 
-            <TextView
-                android:id="@+id/gas_sensor_name_a2"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/graph2TitleBar"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:textStyle="bold"
-                android:text="@string/gas_sensor_graph_2_title"
-                />
+                android:animateLayoutChanges="true"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/gas_sensor_3_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:textStyle="bold"
+                    android:text="@string/gas_sensor_3_dropdown_title"
+                    />
+
+                <Spinner
+                    android:id="@id/sensor_3_frequency_dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/select_frequency_dropdown" />
+
+                <Spinner
+                    android:id="@+id/sensor_3_data_select_dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/gas_data_select"
+                    android:prompt="@string/select_data_dropdown" />
+
+                <TextView
+                    android:id="@+id/gas_sensor_4_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:textStyle="bold"
+                    android:text="@string/gas_sensor_2_dropdown_title"
+                    />
+
+                <Spinner
+                    android:id="@id/sensor_4_frequency_dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/select_frequency_dropdown" />
+
+                <Spinner
+                    android:id="@+id/sensor_4_data_select_dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/gas_data_select"
+                    android:prompt="@string/select_data_dropdown" />
+
+            </LinearLayout>
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/gas_sensor_graph_2"
@@ -96,7 +172,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"/>
 
-            <TextView
+            <!--<TextView
                 android:id="@+id/gas_sensor_name_a3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -110,7 +186,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp"/>-->
 
         </LinearLayout>
 

@@ -38,7 +38,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 public class GasHistoryTabFragment extends Fragment {
     private static final String TAG = "GasHistoryTabFragment";
@@ -54,11 +53,6 @@ public class GasHistoryTabFragment extends Fragment {
 
     LineChart gasGraph1;
     LineChart gasGraph2;
-    LineChart gasPpmGraph;
-
-    ArrayAdapter<String> spinnerArrayAdapter = null;
-
-    int selectedGasSensor = 1;
 
     View rootView;
 
@@ -71,27 +65,30 @@ public class GasHistoryTabFragment extends Fragment {
         initializeTempHumidPressureGraphs();
         setRetainInstance(true);
 
-        //add the gas sensor selection dropdown with the items in the list from above
-        List<String> sensorList = Arrays.asList("Sensor 1", "Sensor 2", "Sensor 3", "Sensor 4");
-        Spinner gasSensorDropdown = rootView.findViewById(R.id.gas_sensor_dropdown);
-        spinnerArrayAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.spinner_item, sensorList);
-        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
-        gasSensorDropdown.setAdapter(spinnerArrayAdapter);
-        gasSensorDropdown.setOnItemSelectedListener(new CustomOnItemSelectedListener());
+        Spinner sensor1DataDropdown = rootView.findViewById(R.id.sensor_1_data_select_dropdown);
+        Spinner sensor2DataDropdown = rootView.findViewById(R.id.sensor_2_data_select_dropdown);
+        Spinner sensor3DataDropdown = rootView.findViewById(R.id.sensor_3_data_select_dropdown);
+        Spinner sensor4DataDropdown = rootView.findViewById(R.id.sensor_4_data_select_dropdown);
+
+        sensor1DataDropdown.setOnItemSelectedListener(new Sensor1DataSelectorListener());
+        sensor2DataDropdown.setOnItemSelectedListener(new Sensor2DataSelectorListener());
+        sensor3DataDropdown.setOnItemSelectedListener(new Sensor3DataSelectorListener());
+        sensor4DataDropdown.setOnItemSelectedListener(new Sensor4DataSelectorListener());
 
         return rootView;
 
     }
 
     public class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
-        public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
-            selectedGasSensor = pos + 1;
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            Log.d(TAG, "Item Selected: " + pos + " ID: " + id + " view ID: " + view.getId());
+            /*selectedGasSensor = pos + 1;
             LineData data1 = gasGraph1.getData();
             if (data1 != null) {
                 data1.clearValues();
                 data1.notifyDataChanged();
                 gasGraph1.notifyDataSetChanged();
-            }
+            }*/
         }
 
         @Override
@@ -99,6 +96,32 @@ public class GasHistoryTabFragment extends Fragment {
             // TODO Auto-generated method stub
         }
 
+    }
+
+    private void updateSensorFrequencyDropdowns(List<Integer> sensor1Freqs, List<Integer> sensor2Freqs, List<Integer> sensor3Freqs, List<Integer> sensor4Freqs){
+        Spinner sensor1FreqDropdown = rootView.findViewById(R.id.sensor_1_frequency_dropdown);
+        ArrayAdapter sensor1ArrayAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.spinner_item, sensor1Freqs);
+        sensor1ArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+        sensor1FreqDropdown.setAdapter(sensor1ArrayAdapter);
+        sensor1FreqDropdown.setOnItemSelectedListener(new Sensor1FrequencySelectorListener());
+
+        Spinner sensor2FreqDropdown = rootView.findViewById(R.id.sensor_2_frequency_dropdown);
+        ArrayAdapter sensor2ArrayAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.spinner_item, sensor2Freqs);
+        sensor2ArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+        sensor2FreqDropdown.setAdapter(sensor2ArrayAdapter);
+        sensor2FreqDropdown.setOnItemSelectedListener(new Sensor2FrequencySelectorListener());
+
+        Spinner sensor3FreqDropdown = rootView.findViewById(R.id.sensor_3_frequency_dropdown);
+        ArrayAdapter sensor3ArrayAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.spinner_item, sensor3Freqs);
+        sensor3ArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+        sensor3FreqDropdown.setAdapter(sensor3ArrayAdapter);
+        sensor3FreqDropdown.setOnItemSelectedListener(new Sensor3FrequencySelectorListener());
+
+        Spinner sensor4FreqDropdown = rootView.findViewById(R.id.sensor_4_frequency_dropdown);
+        ArrayAdapter sensor4ArrayAdapter = new ArrayAdapter<>(rootView.getContext(), R.layout.spinner_item, sensor4Freqs);
+        sensor4ArrayAdapter.setDropDownViewResource(R.layout.spinner_item);
+        sensor4FreqDropdown.setAdapter(sensor4ArrayAdapter);
+        sensor4FreqDropdown.setOnItemSelectedListener(new Sensor4FrequencySelectorListener());
     }
 
     private void expandView(View view, long duration) {
@@ -222,35 +245,6 @@ public class GasHistoryTabFragment extends Fragment {
 
         YAxis rightAxis2 = gasGraph2.getAxisRight();
         rightAxis2.setEnabled(false);
-
-        //ppm graph
-        gasPpmGraph = rootView.findViewById(R.id.gas_sensor_graph_3);
-        gasPpmGraph.setDragEnabled(true);
-        gasPpmGraph.setScaleEnabled(true);
-        gasPpmGraph.setDrawGridBackground(false);
-
-        gasPpmGraph.setPinchZoom(true);
-
-        LineData data3 = new LineData();
-        data3.setValueTextColor(Color.RED);
-
-        gasPpmGraph.setData(data3);
-
-        XAxis xl3 = gasPpmGraph.getXAxis();
-        xl3.setTypeface(Typeface.SANS_SERIF);
-        xl3.setTextColor(Color.BLACK);
-        xl3.setDrawGridLines(true);
-        xl3.setEnabled(true);
-        xl3.setDrawGridLines(true);
-        xl3.setValueFormatter(new DateValueFormatter());
-
-        YAxis leftAxis3 = gasPpmGraph.getAxisLeft();
-        leftAxis3.setTypeface(Typeface.SANS_SERIF);
-        leftAxis3.setTextColor(Color.BLACK);
-        leftAxis3.setDrawGridLines(true);
-
-        YAxis rightAxis3 = gasPpmGraph.getAxisRight();
-        rightAxis3.setEnabled(false);
     }
 
     public class DateValueFormatter implements IAxisValueFormatter {
@@ -370,45 +364,47 @@ public class GasHistoryTabFragment extends Fragment {
     int sensor2SelectedFreq = 0;
     int sensor3SelectedFreq = 0;
     int sensor4SelectedFreq = 0;
-    public void updateGasGraphs(GasSensorData datum){
-        //we want to graph all the data at once
-        GasSensorDataItem data = datum.getSensorDataList().get(0);
 
+    int sensor1SelectedData = 0;
+    int sensor2SelectedData = 0;
+    int sensor3SelectedData = 0;
+    int sensor4SelectedData = 0;
+
+    List<Integer> sensor1frequencies = new ArrayList<>();
+    List<Integer> sensor2frequencies = new ArrayList<>();
+    List<Integer> sensor3frequencies = new ArrayList<>();
+    List<Integer> sensor4frequencies = new ArrayList<>();
+
+    Boolean frequenciesSet = false;
+
+    public void updateGasGraphs(GasSensorData datum){
         List<Integer> sensor1frequencies = new ArrayList<>();
         List<Integer> sensor2frequencies = new ArrayList<>();
         List<Integer> sensor3frequencies = new ArrayList<>();
         List<Integer> sensor4frequencies = new ArrayList<>();
 
-        List<GasSensorDataItem> sensor1Data = new ArrayList<>();
-        List<GasSensorDataItem> sensor2Data = new ArrayList<>();
-        List<GasSensorDataItem> sensor3Data = new ArrayList<>();
-        List<GasSensorDataItem> sensor4Data = new ArrayList<>();
+        GasSensorDataItem sensor1Data = null;
+        GasSensorDataItem sensor2Data = null;
+        GasSensorDataItem sensor3Data = null;
+        GasSensorDataItem sensor4Data = null;
 
-        List<GasSensorDataItem> sensorData = new ArrayList<>();
         for(GasSensorDataItem obj : datum.getSensorDataList()){
-            if(obj.getGasSensor() == selectedGasSensor){
-                sensorData.add(obj);
-            }
             if(obj.getGasSensor() == 1){
                 if(!sensor1frequencies.contains(obj.getFrequency())){
                     sensor1frequencies.add(obj.frequency);
                 }
-                sensor1Data.add(obj);
             } else if(obj.getGasSensor() == 2){
                 if(!sensor2frequencies.contains(obj.getFrequency())){
                     sensor2frequencies.add(obj.frequency);
                 }
-                sensor2Data.add(obj);
             } else if(obj.getGasSensor() == 3){
                 if(!sensor3frequencies.contains(obj.getFrequency())){
                     sensor3frequencies.add(obj.frequency);
                 }
-                sensor3Data.add(obj);
             } else if(obj.getGasSensor() == 4){
                 if(!sensor4frequencies.contains(obj.getFrequency())){
                     sensor4frequencies.add(obj.frequency);
                 }
-                sensor4Data.add(obj);
             }
         }
 
@@ -417,36 +413,76 @@ public class GasHistoryTabFragment extends Fragment {
         Collections.sort(sensor3frequencies);
         Collections.sort(sensor4frequencies);
 
+        for(GasSensorDataItem obj : datum.getSensorDataList()){
+            if(obj.getGasSensor() == 1){
+                if(obj.getFrequency() == sensor1frequencies.get(sensor1SelectedFreq)){
+                    sensor1Data = obj;
+                }
+            } else if(obj.getGasSensor() == 2){
+                if(obj.getFrequency() == sensor2frequencies.get(sensor2SelectedFreq)){
+                    sensor2Data = obj;
+                }
+            } else if(obj.getGasSensor() == 3){
+                if(obj.getFrequency() == sensor3frequencies.get(sensor3SelectedFreq)){
+                    sensor3Data = obj;
+                }
+            } else if(obj.getGasSensor() == 4){
+                if(obj.getFrequency() == sensor4frequencies.get(sensor4SelectedFreq)){
+                    sensor4Data = obj;
+                }
+            }
+        }
+
+        if(rootView != null && !frequenciesSet){
+            this.sensor1frequencies = sensor1frequencies;
+            this.sensor2frequencies = sensor2frequencies;
+            this.sensor3frequencies = sensor3frequencies;
+            this.sensor4frequencies = sensor4frequencies;
+            updateSensorFrequencyDropdowns(sensor1frequencies, sensor2frequencies, sensor3frequencies, sensor4frequencies);
+            frequenciesSet = true;
+        }
+
         i++;
-        //Random rand = new Random();
         if(gasGraph1 != null ){
             LineData data1 = gasGraph1.getData();
             if (data1 != null) {
 
                 int index = 0;
-                for(GasSensorDataItem obj : sensorData){
+                if(sensor1Data != null){
                     ILineDataSet set = data1.getDataSetByIndex(index);
-                    int yValue = (int) obj.getZ_real();
+                    int sensor1yValue = getYvalue(sensor1Data);
                     if (set == null) {
-                        String label = obj.getFrequency() + "kHz";
+                        String label = sensor1Data.getFrequency() + "kHz";
                         set = createSet(label);
-                        //((LineDataSet) set).setColor(Color.rgb(rand.nextInt(), rand.nextInt(), rand.nextInt()));
-                        set.addEntry(new Entry(i, yValue));
+                        ((LineDataSet) set).setColor(Color.RED);
+                        ((LineDataSet) set).setLineWidth(4);
+                        //set.setAxisDependency(YAxis.AxisDependency.LEFT);
+
+                        set.addEntry(new Entry(i, sensor1yValue));
                         data1.addDataSet(set);
                     } else {
-                        set.addEntry(new Entry(i, yValue));
+                        set.addEntry(new Entry(i, sensor1yValue));
                     }
                     index++;
-                    Log.d(TAG, "Z' Graphed: " + yValue + " sensor: " + obj.getGasSensor() + " frequency: " + obj.getFrequency());
-                }
-                /*ILineDataSet set = data1.getDataSetByIndex(0);
-
-                if (set == null) {
-                    set = createSet();
-                    data1.addDataSet(set);
                 }
 
-                data1.addEntry(new Entry(i, data.getZ_real()), 0);*/
+                if(sensor2Data != null){
+                    ILineDataSet set = data1.getDataSetByIndex(index);
+                    int sensor2yValue = getYvalue(sensor2Data);
+                    if (set == null) {
+                        String label = sensor2Data.getFrequency() + "kHz";
+                        set = createSet(label);
+                        ((LineDataSet) set).setColor(Color.BLUE);
+                        ((LineDataSet) set).setLineWidth(2);
+                        //set.setAxisDependency(YAxis.AxisDependency.RIGHT);
+
+                        set.addEntry(new Entry(i, sensor2yValue));
+                        data1.addDataSet(set);
+                    } else {
+                        set.addEntry(new Entry(i, sensor2yValue));
+                    }
+                }
+
                 data1.notifyDataChanged();
 
                 // let the chart know its data has changed
@@ -464,40 +500,48 @@ public class GasHistoryTabFragment extends Fragment {
             LineData data2 = gasGraph2.getData();
             if (data2 != null) {
 
-                ILineDataSet set = data2.getDataSetByIndex(0);
+                int index = 0;
+                if(sensor3Data != null){
+                    ILineDataSet set = data2.getDataSetByIndex(index);
+                    int sensor3yValue = getYvalue(sensor3Data);
+                    if (set == null) {
+                        String label = sensor3Data.getFrequency() + "kHz";
+                        set = createSet(label);
+                        ((LineDataSet) set).setColor(Color.RED);
+                        ((LineDataSet) set).setLineWidth(4);
+                        //set.setAxisDependency(YAxis.AxisDependency.LEFT);
 
-                if (set == null) {
-                    set = createSet("Z''");
-                    data2.addDataSet(set);
+                        set.addEntry(new Entry(i, sensor3yValue));
+                        data2.addDataSet(set);
+                    } else {
+                        set.addEntry(new Entry(i, sensor3yValue));
+                    }
+                    index++;
                 }
 
-                data2.addEntry(new Entry(i, data.getZ_imaginary()), 0);
+                if(sensor4Data != null){
+                    ILineDataSet set = data2.getDataSetByIndex(index);
+                    int sensor4yValue = getYvalue(sensor4Data);
+                    if (set == null) {
+                        String label = sensor4Data.getFrequency() + "kHz";
+                        set = createSet(label);
+                        ((LineDataSet) set).setColor(Color.BLUE);
+                        ((LineDataSet) set).setLineWidth(2);
+                        //set.setAxisDependency(YAxis.AxisDependency.RIGHT);
+
+                        set.addEntry(new Entry(i, sensor4yValue));
+                        data2.addDataSet(set);
+                    } else {
+                        set.addEntry(new Entry(i, sensor4yValue));
+                    }
+                }
+
                 data2.notifyDataChanged();
 
                 gasGraph2.notifyDataSetChanged();
 
                 gasGraph2.setVisibleXRangeMaximum(40);
                 gasGraph2.moveViewToX(data2.getEntryCount());
-            }
-        }
-        if(gasPpmGraph != null ){
-            LineData data3 = gasPpmGraph.getData();
-            if (data3 != null) {
-
-                ILineDataSet set = data3.getDataSetByIndex(0);
-
-                if (set == null) {
-                    set = createSet("PPM");
-                    data3.addDataSet(set);
-                }
-
-                data3.addEntry(new Entry(i, data.getGas_ppm()), 0);
-                data3.notifyDataChanged();
-
-                gasPpmGraph.notifyDataSetChanged();
-
-                gasPpmGraph.setVisibleXRangeMaximum(40);
-                gasPpmGraph.moveViewToX(data3.getEntryCount());
             }
         }
     }
@@ -583,5 +627,202 @@ public class GasHistoryTabFragment extends Fragment {
         set.setValueTextSize(9f);
         set.setDrawValues(false);
         return set;
+    }
+
+    public int getYvalue(GasSensorDataItem data){
+        if(data.getGasSensor() == 1){
+            switch (sensor1SelectedData){
+                case 0:
+                    return (int) data.getZ_real();
+                case 1:
+                    return (int) data.getZ_imaginary();
+                case 3:
+                    return (int) data.getGas_ppm();
+            }
+        } else if(data.getGasSensor() == 2){
+            switch (sensor2SelectedData){
+                case 0:
+                    return (int) data.getZ_real();
+                case 1:
+                    return (int) data.getZ_imaginary();
+                case 3:
+                    return (int) data.getGas_ppm();
+            }
+        } else if(data.getGasSensor() == 3){
+            switch (sensor3SelectedData){
+                case 0:
+                    return (int) data.getZ_real();
+                case 1:
+                    return (int) data.getZ_imaginary();
+                case 3:
+                    return (int) data.getGas_ppm();
+            }
+        } else if(data.getGasSensor() == 4){
+            switch (sensor4SelectedData){
+                case 0:
+                    return (int) data.getZ_real();
+                case 1:
+                    return (int) data.getZ_imaginary();
+                case 3:
+                    return (int) data.getGas_ppm();
+            }
+        }
+        return 0;
+    }
+
+    public class Sensor1FrequencySelectorListener implements AdapterView.OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            sensor1SelectedFreq = pos;
+
+            /*LineData data = gasGraph1.getData();
+            if (data != null) {
+                *//*ILineDataSet dataSet = data.getDataSetByIndex(0);
+                dataSet.clear();
+                data.notifyDataChanged();
+                gasGraph1.notifyDataSetChanged();*//*
+                data.clearValues();
+                data.notifyDataChanged();
+                gasGraph1.notifyDataSetChanged();
+            }*/
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+        }
+
+    }
+
+    public class Sensor2FrequencySelectorListener implements AdapterView.OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            sensor2SelectedFreq = pos;
+
+            /*LineData data = gasGraph1.getData();
+            if (data != null) {
+                data.clearValues();
+                data.notifyDataChanged();
+                gasGraph1.notifyDataSetChanged();
+            }*/
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+        }
+
+    }
+
+    public class Sensor3FrequencySelectorListener implements AdapterView.OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            sensor3SelectedFreq = pos;
+
+            /*LineData data = gasGraph2.getData();
+            if (data != null) {
+                data.clearValues();
+                data.notifyDataChanged();
+                gasGraph2.notifyDataSetChanged();
+            }*/
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+        }
+
+    }
+
+    public class Sensor4FrequencySelectorListener implements AdapterView.OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            sensor4SelectedFreq = pos;
+
+            /*LineData data = gasGraph2.getData();
+            if (data != null) {
+                data.clearValues();
+                data.notifyDataChanged();
+                gasGraph2.notifyDataSetChanged();
+            }*/
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+        }
+
+    }
+
+    public class Sensor1DataSelectorListener implements AdapterView.OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            sensor1SelectedData = pos;
+
+            /*LineData data = gasGraph1.getData();
+            if (data != null) {
+                data.clearValues();
+                data.notifyDataChanged();
+                gasGraph1.notifyDataSetChanged();
+            }*/
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+        }
+
+    }
+
+    public class Sensor2DataSelectorListener implements AdapterView.OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            sensor2SelectedData = pos;
+
+            /*LineData data = gasGraph1.getData();
+            if (data != null) {
+                data.clearValues();
+                data.notifyDataChanged();
+                gasGraph1.notifyDataSetChanged();
+            }*/
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+        }
+
+    }
+
+    public class Sensor3DataSelectorListener implements AdapterView.OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            sensor3SelectedData = pos;
+
+            /*LineData data = gasGraph2.getData();
+            if (data != null) {
+                data.clearValues();
+                data.notifyDataChanged();
+                gasGraph2.notifyDataSetChanged();
+            }*/
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+        }
+
+    }
+
+    public class Sensor4DataSelectorListener implements AdapterView.OnItemSelectedListener {
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            sensor4SelectedData = pos;
+
+            /*LineData data = gasGraph2.getData();
+            if (data != null) {
+                data.clearValues();
+                data.notifyDataChanged();
+                gasGraph2.notifyDataSetChanged();
+            }*/
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+        }
+
     }
 }
