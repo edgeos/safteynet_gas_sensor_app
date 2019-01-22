@@ -123,6 +123,25 @@ public class BluetoothService extends Service {
     }
 
     /**
+     * This method uses reflection (spooky) to reset the device cache on the mobile device
+     * This is useful to refresh any cached data that may have changed since the BLE device restarted
+     * For instance, a device rename may work, but the old name will be associated with the MAC address in the cache so the old one will be what is seen
+     * As of now, there is no more elegant solution to this issue that reflectively clearing the cache
+     * @param gatt
+     * @return
+     */
+    private boolean refreshDeviceCache(BluetoothGatt gatt){
+        try {
+            Method localMethod = gatt.getClass().getMethod("refresh", new Class[0]);
+            return (Boolean) localMethod.invoke(gatt, new Object[0]);
+        }
+        catch (Exception localException) {
+            Log.e(TAG, "An exception occured while refreshing device");
+        }
+        return false;
+    }
+
+    /**
      * Callback method for the bluetooth connection
      * Listens for status changes and acts accordingly
      * See https://developer.android.com/reference/android/bluetooth/BluetoothGattCallback for more information
@@ -157,6 +176,7 @@ public class BluetoothService extends Service {
                 //set global variables for connected device and device name
                 if(gatt != null){
                     connectedGatt = gatt;
+                    refreshDeviceCache(connectedGatt);
                     //set the variable for device name, use the MAC address if no name is available
                     deviceName = gatt.getDevice().getName() == null ? gatt.getDevice().getAddress() : gatt.getDevice().getName();
                     Log.d(TAG, "Device connected: " + deviceName);
