@@ -36,6 +36,7 @@ import com.wearables.ge.safteynet_gas_sensor.R;
 import com.wearables.ge.safteynet_gas_sensor.activities.ui.GasDeviceTabFragment;
 import com.wearables.ge.safteynet_gas_sensor.activities.ui.GasHistoryTabFragment;
 import com.wearables.ge.safteynet_gas_sensor.activities.ui.LoggingTabFragment;
+import com.wearables.ge.safteynet_gas_sensor.activities.ui.NewLoggingTabFragment;
 import com.wearables.ge.safteynet_gas_sensor.activities.ui.PairingTabFragment;
 import com.wearables.ge.safteynet_gas_sensor.services.BluetoothService;
 import com.wearables.ge.safteynet_gas_sensor.services.LocationService;
@@ -69,7 +70,8 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
 
     static PairingTabFragment mPairingTabFragment = new PairingTabFragment();
     static GasDeviceTabFragment mGasDeviceTabFragment = new GasDeviceTabFragment();
-    static LoggingTabFragment mLoggingTabFragment = new LoggingTabFragment();
+    //static LoggingTabFragment mLoggingTabFragment = new LoggingTabFragment();
+    static NewLoggingTabFragment mLoggingTabFragment = new NewLoggingTabFragment();
     static GasHistoryTabFragment mGasHistoryTabFragment = new GasHistoryTabFragment();
 
     public static String ARG_SECTION_NUMBER = "section_number";

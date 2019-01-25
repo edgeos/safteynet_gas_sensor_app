@@ -31,6 +31,7 @@ import com.wearables.ge.safteynet_gas_sensor.R;
 import com.wearables.ge.safteynet_gas_sensor.activities.main.MainTabbedActivity;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorDataItem;
+import com.wearables.ge.safteynet_gas_sensor.utils.LogCollection;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -55,6 +56,7 @@ public class LoggingTabFragment extends Fragment {
 
     File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "gas_sensor");
 
+    LogCollection logs;
     List<String> lines = new ArrayList<>();
 
     @Override
@@ -66,17 +68,11 @@ public class LoggingTabFragment extends Fragment {
         showFileText();
 
         //set save file button
+        /*
         Button scanAgainButton = rootView.findViewById(R.id.button1);
         scanAgainButton.setOnClickListener(v -> {
             Log.d(TAG, "Save file to device button pressed");
             saveFile();
-        });
-
-        //save to cloud button
-        Button saveToCloudButton = rootView.findViewById(R.id.button2);
-        saveToCloudButton.setOnClickListener(v -> {
-            Log.d(TAG, "Save file to cloud button pressed");
-            saveFileToCloud();
         });
 
         //clear log button
@@ -92,12 +88,13 @@ public class LoggingTabFragment extends Fragment {
             Log.d(TAG, "Find local files button pressed");
             findLocalFiles();
         });
+        */
 
         AWSMobileClient.getInstance().initialize(rootView.getContext()).execute();
 
         setRetainInstance(true);
 
-        progressBar =rootView.findViewById(R.id.progressBar);
+        //progressBar =rootView.findViewById(R.id.progressBar);
         mainLayout = rootView.findViewById(R.id.logging_page_container_2);
         mainLayout.removeView(progressBar);
 
