@@ -72,5 +72,8 @@ dependencies {
     //For Android BLE support
     implementation 'no.nordicsemi.android.support.v18:scanner:1.2.0'
 
+    // For SQLite support
+    implementation "androidx.room:room-runtime:2.1.0-alpha03"
+    annotationProcessor "androidx.room:room-compiler:2.1.0-alpha03"
 
 }

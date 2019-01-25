@@ -1,6 +1,7 @@
 
 package com.wearables.ge.safteynet_gas_sensor.activities.main;
 
+import android.Manifest;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothDevice;
@@ -10,13 +11,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
@@ -29,15 +33,16 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.AWSStartupHandler;
 import com.amazonaws.mobile.client.AWSStartupResult;
 import com.wearables.ge.safteynet_gas_sensor.R;
-import com.wearables.ge.safteynet_gas_sensor.activities.ui.GasDeviceTabFragment;
-import com.wearables.ge.safteynet_gas_sensor.activities.ui.GasHistoryTabFragment;
-import com.wearables.ge.safteynet_gas_sensor.activities.ui.LoggingTabFragment;
-import com.wearables.ge.safteynet_gas_sensor.activities.ui.NewLoggingTabFragment;
-import com.wearables.ge.safteynet_gas_sensor.activities.ui.PairingTabFragment;
+import com.wearables.ge.safteynet_gas_sensor.activities.main.fragments.GasDeviceTabFragment;
+import com.wearables.ge.safteynet_gas_sensor.activities.main.fragments.GasHistoryTabFragment;
+import com.wearables.ge.safteynet_gas_sensor.activities.main.fragments.LoggingTabFragment;
+import com.wearables.ge.safteynet_gas_sensor.activities.main.fragments.NewLoggingTabFragment;
+import com.wearables.ge.safteynet_gas_sensor.activities.main.fragments.PairingTabFragment;
 import com.wearables.ge.safteynet_gas_sensor.services.BluetoothService;
 import com.wearables.ge.safteynet_gas_sensor.services.LocationService;
 import com.wearables.ge.safteynet_gas_sensor.utils.BLEQueue;
@@ -46,8 +51,6 @@ import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorDataItem;
 import com.wearables.ge.safteynet_gas_sensor.utils.GattAttributes;
 import com.wearables.ge.safteynet_gas_sensor.utils.TempHumidPressure;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -68,11 +71,11 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
      */
     ViewPager mViewPager;
 
-    static PairingTabFragment mPairingTabFragment = new PairingTabFragment();
-    static GasDeviceTabFragment mGasDeviceTabFragment = new GasDeviceTabFragment();
+    private PairingTabFragment mPairingTabFragment;
+    private GasDeviceTabFragment mGasDeviceTabFragment;
     //static LoggingTabFragment mLoggingTabFragment = new LoggingTabFragment();
-    static NewLoggingTabFragment mLoggingTabFragment = new NewLoggingTabFragment();
-    static GasHistoryTabFragment mGasHistoryTabFragment = new GasHistoryTabFragment();
+    private NewLoggingTabFragment mLoggingTabFragment;
+    private GasHistoryTabFragment mGasHistoryTabFragment;
 
     public static String ARG_SECTION_NUMBER = "section_number";
 
@@ -92,9 +95,16 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tabbed_main);
 
+        // Inititialize the fragments
+        mPairingTabFragment = new PairingTabFragment();
+        mGasDeviceTabFragment = new GasDeviceTabFragment();
+        mLoggingTabFragment = new NewLoggingTabFragment();
+        mGasHistoryTabFragment = new GasHistoryTabFragment();
+
         // Create the adapter that will return a fragment for each of the three primary sections
         // of the app.
-        mAppSectionsPagerAdapter = new AppSectionsPagerAdapter(getSupportFragmentManager());
+        mAppSectionsPagerAdapter = new AppSectionsPagerAdapter(getSupportFragmentManager(), mGasDeviceTabFragment,
+                mPairingTabFragment, mLoggingTabFragment, mGasHistoryTabFragment);
 
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
@@ -136,19 +146,18 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         mBound = true;
 
+        // Make sure we have permissions to write to disk
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    1);
+        }
+
         //start location service
         //Location service is not an extension of the service class and doesn't need to be bound to.
         //This is because we don't need the location service to send updates to the UI.
         //We only need to grab the latest coordinates from the location service.
         LocationService.startLocationService(this);
-
-        AWSMobileClient.getInstance().initialize(this, new AWSStartupHandler() {
-            @Override
-            public void onComplete(AWSStartupResult awsStartupResult) {
-                Log.d("YourMainActivity", "AWSMobileClient is instantiated and you are connected to AWS!");
-            }
-        }).execute();
-
     }
 
     @Override
@@ -199,6 +208,9 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                 if(connectedDevice != null){
                     disconnectDevice();
                 }
+                return true;
+            case R.id.logout:
+                logout();
                 return true;
             case R.id.dev_mode:
                 Log.d(TAG, "dev_mode button pushed");
@@ -320,6 +332,17 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
     }
 
     /**
+     * Logout of AWS instance and disconnect the device.
+     */
+    public void logout(){
+        // Disconnect the device
+        disconnectDevice();
+
+        // Tell AWS to dump the credentials
+        IdentityManager.getDefaultIdentityManager().signOut();
+    }
+
+    /**
      * Connection callback method for the bluetooth service
      */
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -408,8 +431,21 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
      */
     public static class AppSectionsPagerAdapter extends FragmentPagerAdapter {
 
-        AppSectionsPagerAdapter(FragmentManager fm){
+        private GasDeviceTabFragment mGasDeviceTabFragment;
+        private PairingTabFragment mPairingTabFragment;
+        private NewLoggingTabFragment mLoggingTabFragment;
+        private GasHistoryTabFragment mGasHistoryTabFragment;
+
+        AppSectionsPagerAdapter(FragmentManager fm, GasDeviceTabFragment gasDeviceTabFragment,
+                                PairingTabFragment pairingTabFragment, NewLoggingTabFragment loggingTabFragment,
+                                GasHistoryTabFragment historyTabFragment) {
             super(fm);
+
+            // Save the fragments from the main activity
+            this.mGasDeviceTabFragment = gasDeviceTabFragment;
+            this.mPairingTabFragment = pairingTabFragment;
+            this.mLoggingTabFragment = loggingTabFragment;
+            this.mGasHistoryTabFragment = historyTabFragment;
         }
 
         @Override

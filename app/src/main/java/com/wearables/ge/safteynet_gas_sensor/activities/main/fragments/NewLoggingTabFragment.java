@@ -1,6 +1,7 @@
-package com.wearables.ge.safteynet_gas_sensor.activities.ui;
+package com.wearables.ge.safteynet_gas_sensor.activities.main.fragments;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
@@ -28,6 +29,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.wearables.ge.safteynet_gas_sensor.R;
 import com.wearables.ge.safteynet_gas_sensor.activities.main.MainTabbedActivity;
+import com.wearables.ge.safteynet_gas_sensor.activities.util.fragments.ErrorDialogFragment;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorDataItem;
 import com.wearables.ge.safteynet_gas_sensor.utils.LogCollection;
@@ -72,18 +74,24 @@ public class NewLoggingTabFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_tab_logging, container, false);
         logEventsList = rootView.findViewById(R.id.logEventList);
 
-        // Add the first line
-        if (logs != null && logs.size() > 1) {
-            addFirstLineToView();
+        // Check for file write permissions
+        if (ContextCompat.checkSelfPermission(rootView.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Ask for permissions again
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        } else {
+            // Add the first line
+            if (logs != null && logs.size() > 1) {
+                addFirstLineToView();
 
-            // Add any saved lines
-            for (long i = 2; i < ((MAX_LOGS > logs.size()) ? logs.size() : MAX_LOGS); i++) {
-                try {
-                    synchronized (this) {
-                        addLogToView(logs.read(i));
+                // Add any saved lines
+                for (long i = 2; i < ((MAX_LOGS > logs.size()) ? logs.size() : MAX_LOGS); i++) {
+                    try {
+                        synchronized (this) {
+                            addLogToView(logs.read(i));
+                        }
+                    } catch (IOException io) {
+                        Log.e(TAG, "Unable to add log to view: " + io.getLocalizedMessage());
                     }
-                } catch (IOException io) {
-                    Log.e(TAG, "Unable to add log to view: " + io.getLocalizedMessage());
                 }
             }
         }
@@ -112,15 +120,12 @@ public class NewLoggingTabFragment extends Fragment {
 
     public void addItem(String item, GasSensorData data) {
         // Check for file write permissions
-        if (rootView != null) {
-            if (ContextCompat.checkSelfPermission(rootView.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        1);
-                if (ContextCompat.checkSelfPermission(rootView.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-            }
+        final Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            return;
         }
 
         // Add the header line to the file based on the incoming data

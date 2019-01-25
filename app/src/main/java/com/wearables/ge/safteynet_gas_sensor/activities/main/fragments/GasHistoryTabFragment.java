@@ -1,4 +1,4 @@
-package com.wearables.ge.safteynet_gas_sensor.activities.ui;
+package com.wearables.ge.safteynet_gas_sensor.activities.main.fragments;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
