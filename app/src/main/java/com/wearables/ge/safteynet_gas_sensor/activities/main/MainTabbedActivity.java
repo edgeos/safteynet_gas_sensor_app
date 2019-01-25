@@ -15,14 +15,16 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.AlertDialog;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
@@ -34,17 +36,16 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.amazonaws.mobile.auth.core.IdentityManager;
-import com.amazonaws.mobile.client.AWSMobileClient;
-import com.amazonaws.mobile.client.AWSStartupHandler;
-import com.amazonaws.mobile.client.AWSStartupResult;
 import com.wearables.ge.safteynet_gas_sensor.R;
 import com.wearables.ge.safteynet_gas_sensor.activities.main.fragments.GasDeviceTabFragment;
 import com.wearables.ge.safteynet_gas_sensor.activities.main.fragments.GasHistoryTabFragment;
 import com.wearables.ge.safteynet_gas_sensor.activities.main.fragments.LoggingTabFragment;
 import com.wearables.ge.safteynet_gas_sensor.activities.main.fragments.NewLoggingTabFragment;
 import com.wearables.ge.safteynet_gas_sensor.activities.main.fragments.PairingTabFragment;
+import com.wearables.ge.safteynet_gas_sensor.persistence.StoreAndForwardData;
 import com.wearables.ge.safteynet_gas_sensor.services.BluetoothService;
 import com.wearables.ge.safteynet_gas_sensor.services.LocationService;
+import com.wearables.ge.safteynet_gas_sensor.services.StoreAndForwardService;
 import com.wearables.ge.safteynet_gas_sensor.utils.BLEQueue;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorDataItem;
@@ -58,10 +59,10 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
     private static final String TAG = "Main Tabbed Activity";
 
     /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide fragments for each of the
+     * The {@link PagerAdapter} that will provide fragments for each of the
      * three primary sections of the app. We use a {@link FragmentPagerAdapter}
      * derivative, which will keep every loaded fragment in memory. If this becomes too memory
-     * intensive, it may be best to switch to a {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     * intensive, it may be best to switch to a {@link FragmentStatePagerAdapter}.
      */
     AppSectionsPagerAdapter mAppSectionsPagerAdapter;
 
@@ -82,6 +83,8 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
     boolean mBound;
     public BluetoothService mService;
     public static BluetoothDevice connectedDevice;
+
+    public StoreAndForwardService mStoreAndForwardService;
 
     public static String connectedDeviceName;
     public static String connectedDeviceAddress;
@@ -167,6 +170,12 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         Intent intent = new Intent(this, BluetoothService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         mBound = true;
+
+        // Start the storea and forward service
+        final Intent storeAndForwardIntent = new Intent(this, StoreAndForwardService.class);
+        startService(storeAndForwardIntent);
+        bindService(storeAndForwardIntent, mStoreAndForwardConnection, Context.BIND_IMPORTANT);
+
         //and re-register the broadcast receiver
         registerReceiver(mGattUpdateReceiver, createIntentFilter());
     }
@@ -181,6 +190,13 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
             unregisterReceiver(mGattUpdateReceiver);
             mBound = false;
         }
+        if (mStoreAndForwardConnection != null) {
+            unbindService(mStoreAndForwardConnection);
+        }
+
+        // Stop any running store and forward service
+        final Intent storeAndForwardIntent = new Intent(this, StoreAndForwardService.class);
+        stopService(storeAndForwardIntent);
     }
 
     @Override
@@ -338,6 +354,13 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         // Disconnect the device
         disconnectDevice();
 
+        if (mStoreAndForwardConnection != null) {
+            unbindService(mStoreAndForwardConnection);
+        }
+        // Stop any running store and forward service
+        final Intent storeAndForwardIntent = new Intent(this, StoreAndForwardService.class);
+        stopService(storeAndForwardIntent);
+
         // Tell AWS to dump the credentials
         IdentityManager.getDefaultIdentityManager().signOut();
     }
@@ -364,6 +387,22 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
         public void onServiceDisconnected(ComponentName arg0) {
             Log.d(TAG, "Bluetooth service disconnected");
             mBound = false;
+        }
+    };
+
+    /**
+     * Connection callback method for the store and forward service
+     */
+    private ServiceConnection mStoreAndForwardConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            StoreAndForwardService.StoreAndForwardBinder binder = (StoreAndForwardService.StoreAndForwardBinder) service;
+            mStoreAndForwardService = binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG, "Disconnnected");
         }
     };
 
@@ -598,6 +637,7 @@ public class MainTabbedActivity extends FragmentActivity implements ActionBar.Ta
                     .append(", ").append(item.getZ_imaginary())
                     .append(", ").append(item.getGas_ppm());
         }
+        mStoreAndForwardService.enqueue(date.getTime(), connectedDeviceAddress, datum.getHeaderLine(), message.toString());
         mLoggingTabFragment.addItem(message.toString(), datum);
 
         //just use the first item in the list for now to graph

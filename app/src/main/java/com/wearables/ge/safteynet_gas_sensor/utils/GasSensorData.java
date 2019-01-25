@@ -117,4 +117,18 @@ public class GasSensorData {
     public void setSensorDataList(List<GasSensorDataItem> sensorDataList) {
         this.sensorDataList = sensorDataList;
     }
+
+    public String getHeaderLine() {
+        String headerLine = "TimeStamp, Temp, Humidity, Pressure";
+
+        for (GasSensorDataItem obj : sensorDataList){
+            int sensorNum = obj.getGasSensor();
+            if (sensorNum != obj.getGasSensor()) {
+                headerLine += ", Gas Sensor " + Integer.toString(sensorNum);
+            }
+            headerLine += ", Frequency, Z', Z'', Gas PPM";
+        }
+
+        return headerLine;
+    }
 }

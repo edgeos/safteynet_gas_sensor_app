@@ -4,46 +4,32 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.amazonaws.mobile.client.AWSMobileClient;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.wearables.ge.safteynet_gas_sensor.R;
 import com.wearables.ge.safteynet_gas_sensor.activities.main.MainTabbedActivity;
-import com.wearables.ge.safteynet_gas_sensor.activities.util.fragments.ErrorDialogFragment;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorData;
 import com.wearables.ge.safteynet_gas_sensor.utils.GasSensorDataItem;
 import com.wearables.ge.safteynet_gas_sensor.utils.LogCollection;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class NewLoggingTabFragment extends Fragment {
     private static long MAX_LOGS = 50;
@@ -130,14 +116,7 @@ public class NewLoggingTabFragment extends Fragment {
 
         // Add the header line to the file based on the incoming data
         if (firstLine == null) {
-            firstLine = "TimeStamp, Temp, Humidity, Pressure";
-            for (GasSensorDataItem obj : data.getSensorDataList()){
-                int sensorNum = obj.getGasSensor();
-                if (sensorNum != obj.getGasSensor()) {
-                    firstLine += ", Gas Sensor " + Integer.toString(sensorNum);
-                }
-                firstLine += ", Frequency, Z', Z'', Gas PPM";
-            }
+            firstLine = data.getHeaderLine();
 
             // If the logs collection has not been initialized yet, initialize it
             if (logs == null) {

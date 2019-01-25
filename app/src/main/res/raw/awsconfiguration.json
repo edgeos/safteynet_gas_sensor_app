@@ -20,11 +20,12 @@
       "Region": "us-east-1"
     }
   },
-  "IoTConfig": {
-    "Default": {
-      "IoTEndpoint": "a3bx6ijnr5v29n-ats.iot.us-east-1.amazonaws.com",
-      "IoTRegion": "us-east-1",
-      "IoTPolicy": "thing-policy"
-    }
-  }
+"IoTConfig": {
+"Default":
+{
+  "IoTEndpoint": "a3bx6ijnr5v29n-ats.iot.us-east-1.amazonaws.com",
+  "IoTRegion": "us-east-1",
+  "IoTPolicy": "thing-policy"
+}
+}
 }
