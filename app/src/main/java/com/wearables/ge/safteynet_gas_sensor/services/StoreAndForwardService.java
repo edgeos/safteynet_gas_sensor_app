@@ -10,6 +10,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttManager;
+import com.amazonaws.mobileconnectors.iot.AWSIotMqttMessageDeliveryCallback;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos;
 import com.amazonaws.util.StringUtils;
 import com.wearables.ge.safteynet_gas_sensor.persistence.StoreAndForwardData;
@@ -251,10 +252,14 @@ public class StoreAndForwardService extends Service {
                     try {
                         final String topic = (mMqttTopic.endsWith("/")) ?
                                 (mMqttTopic + data.deviceId) : (mMqttTopic + "/" + data.deviceId);
-                        mMqttManager.publishString(data.toString(), topic, AWSIotMqttQos.QOS1);
-
-                        // If we were able to publish, set sent to true
-                        data.sent = true;
+                        mMqttManager.publishString(data.toString(), topic, AWSIotMqttQos.QOS1, (status, userData) -> {
+                            if (status == AWSIotMqttMessageDeliveryCallback.MessageDeliveryStatus.Success) {
+                                // If we were able to publish, set sent to true
+                                synchronized (data) {
+                                    data.sent = true;
+                                }
+                            }
+                        }, null);
                     } catch (Exception e) {
                         Log.d(TAG, "Unable to publish data: " + e.getLocalizedMessage());
                     }
@@ -283,11 +288,12 @@ public class StoreAndForwardService extends Service {
             mDatabase.storeAndForwardDataDao().insertAll(mDataList.toArray(new StoreAndForwardData[0]));
         }
 
-        // Delete all sent entries from the mDatabase
+        // Delete all sent entries from the database
         mDatabase.storeAndForwardDataDao().deleteAllSent();
 
-        // Refresh the mDataList so it is synced with the mDatabase
+        // Refresh the mDataList so it is synced with the database
         if (mRunning.get()) {
+            mDataList.clear();
             mDataList = mDatabase.storeAndForwardDataDao().getNotSent(mEntryLimit.get());
         }
     }
